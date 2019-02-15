@@ -1,82 +1,151 @@
 package es.uam.eps.bmi.search.index.lucene;
 
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-
-
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.FieldType;
-import org.apache.lucene.document.TextField;
-import org.apache.lucene.index.IndexOptions;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.IndexWriterConfig.OpenMode;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.MultiFields;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.index.Terms;
+import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.jsoup.Jsoup;
 
 import es.uam.eps.bmi.search.index.Index;
+import es.uam.eps.bmi.search.index.freq.FreqVector;
+import es.uam.eps.bmi.search.index.freq.lucene.LuceneFreqVector;
 
+/**
+ * Implementacion de indice con Lucene
+ *
+ */
+public class LuceneIndex implements Index {
 
+	/**
+	 * Index Reader de Lucene
+	 */
+	private IndexReader index = null;
 
+	/**
+	 * Constructor del indice implementado con las funciones de Lucene
+	 * 
+	 * @param indexPath: Path del indice creado anteriormente
+	 * @throws IOException
+	 */
+	public LuceneIndex(String indexPath) throws IOException {
 
-public class LuceneIndex implements Index{
-	
-	
-	public final static String DirectoryPath = "res/index";
-	
-	private IndexWriter builder;
+		// Directorio donde esta guardado el indice creado por Builder
+		Directory directory = FSDirectory.open(Paths.get(indexPath));
 
-	public LuceneIndex(String UrlPath) throws IOException {
-		
-		boolean rebuild = true;
-		
-		
-		
-		Directory directory = FSDirectory.open(Paths.get(DirectoryPath));
-		
-		// Inicio creación del índice
-	    Analyzer analyzer = new StandardAnalyzer();
-	    IndexWriterConfig config = new IndexWriterConfig(analyzer);
-	    if (rebuild) config.setOpenMode(OpenMode.CREATE);
-	    else config.setOpenMode(OpenMode.CREATE_OR_APPEND);
-	    
-	    // Creacion del in
-	    builder = new IndexWriter(directory, config);
-	    
-	    
-	    // Abrimos archivo con url por linea
-	    BufferedReader reader =  new BufferedReader(new FileReader(UrlPath));
+		this.index = DirectoryReader.open(directory);
 
-	    
-	    // Incluimos en el index cada una de las URLs
-	    String url = reader.readLine();
-	    
-        while (url != null) {
-            Document doc = new Document();
-            doc.add(new TextField("path", url, Field.Store.YES));
-            FieldType type = new FieldType();
-            type.setIndexOptions (IndexOptions.DOCS_AND_FREQS);
-            type.setStoreTermVectors (true);
-            String text = Jsoup.parse(new URL(url), 10000).text();
-            doc.add(new Field("content", text, type));
-            builder.addDocument(doc);
-            
-            url = reader.readLine();
-        }
-        builder.close();
-        
-		
 	}
-	
-	
-	
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see es.uam.eps.bmi.search.index.Index#getAllTerms()
+	 */
+	@Override
+	public List<String> getAllTerms() throws IOException {
+
+		List<String> termList = new ArrayList<String>();
+
+		// Iterador sobre los contenidos de los documentos
+		TermsEnum terms = MultiFields.getFields(this.index).terms("content").iterator();
+
+		// Incluimos los terminos en la lista de terminos
+		while (terms.next() != null)
+			termList.add(terms.term().utf8ToString());
+
+		return termList;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see es.uam.eps.bmi.search.index.Index#getTotalFreq(java.lang.String)
+	 */
+	@Override
+	public long getTotalFreq(String word) throws IOException {
+
+		Term term = new Term("content", word);
+
+		return index.totalTermFreq(term);
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see es.uam.eps.bmi.search.index.Index#getTermFreq(java.lang.String, int)
+	 */
+	@Override
+	public long getTermFreq(String word, int docID) throws IOException {
+
+		return this.getDocVector(docID).getFreq(word);
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see es.uam.eps.bmi.search.index.Index#getDocVector(int)
+	 */
+	@Override
+	public FreqVector getDocVector(int docID) throws IOException {
+
+		// Obtenemos terminos del documento
+		Terms terms = index.getTermVector(docID, "content");
+
+		return new LuceneFreqVector(terms);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see es.uam.eps.bmi.search.index.Index#getDocPath(int)
+	 */
+	@Override
+	public String getDocPath(int docID) throws IOException {
+
+		// Devuelve el campo path del documento
+		return index.document(docID).get("path");
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see es.uam.eps.bmi.search.index.Index#getDocFreq(java.lang.String)
+	 */
+	@Override
+	public int getDocFreq(String word) throws IOException {
+
+		Term term = new Term("content", word);
+
+		return index.docFreq(term);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see es.uam.eps.bmi.search.index.Index#close()
+	 */
+	@Override
+	public void close() throws IOException {
+		index.close();
+		index = null;
+	}
+
+	/**
+	 * @return Devuelve el index Reader
+	 */
+	public IndexReader getIndex() {
+		return index;
+	}
 
 }
