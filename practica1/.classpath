@@ -6,8 +6,8 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="C:/Users/miguel.laseca.espiga/source/repos/bminf/jsoup-1.11.3.jar"/>
-	<classpathentry kind="lib" path="C:/Users/miguel.laseca.espiga/source/repos/bminf/lucene-core-7.7.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/miguel.laseca.espiga/source/repos/bminf/lucene-queryparser-7.7.0.jar"/>
+	<classpathentry kind="lib" path="/Users/pablomm/Desktop/bminf/jsoup-1.11.3.jar"/>
+	<classpathentry kind="lib" path="/Users/pablomm/Desktop/bminf/lucene-core-7.6.0.jar"/>
+	<classpathentry kind="lib" path="/Users/pablomm/Desktop/bminf/lucene-queryparser-7.6.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

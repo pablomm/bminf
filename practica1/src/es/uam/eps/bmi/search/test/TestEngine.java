@@ -8,13 +8,11 @@ import es.uam.eps.bmi.search.index.freq.TermFreq;
 import es.uam.eps.bmi.search.index.lucene.LuceneIndex;
 import es.uam.eps.bmi.search.index.lucene.LuceneBuilder;
 import es.uam.eps.bmi.search.lucene.LuceneEngine;
-//import es.uam.eps.bmi.search.vsm.VSMEngine;
+import es.uam.eps.bmi.search.vsm.VSMEngine;
 import es.uam.eps.bmi.search.ranking.SearchRanking;
 import es.uam.eps.bmi.search.ranking.SearchRankingDoc;
 import es.uam.eps.bmi.search.ui.TextResultDocRenderer;
 
-//import es.uam.eps.bmi.search.ranking.SearchRankingDoc;
-//import es.uam.eps.bmi.search.ui.TextResultDocRenderer;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -89,7 +87,8 @@ public class TestEngine {
         System.out.println("Checking search results");
 
         testSearch (new LuceneEngine(indexPath), query, 5);
-        //testSearch (new VSMEngine(new LuceneIndex(indexPath)), query, 5);
+        System.out.println("VSMMMMMMMM");
+        testSearch (new VSMEngine(new LuceneIndex(indexPath)), query, 5);
     }
     
     static void testSearch (SearchEngine engine, String query, int cutoff) throws IOException {

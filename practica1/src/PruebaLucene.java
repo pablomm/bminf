@@ -26,7 +26,7 @@ public class PruebaLucene {
         
     	// Construccion del indice
         LuceneBuilder  builder = new LuceneBuilder();
-        builder.build(urlCollection, indexPath);
+        builder.build(directoryCollection, indexPath);
         
         // Apertura del indice
         LuceneIndex index = new LuceneIndex(indexPath);

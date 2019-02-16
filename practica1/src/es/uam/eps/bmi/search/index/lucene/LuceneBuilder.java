@@ -4,11 +4,11 @@ import es.uam.eps.bmi.search.index.IndexBuilder;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.Scanner;
@@ -43,11 +43,6 @@ public class LuceneBuilder implements IndexBuilder {
 	 * OFFSETS.
 	 */
 	private final static IndexOptions indexOptions = IndexOptions.DOCS_AND_FREQS;
-
-	/**
-	 * Charset de los documentos a incluir en el index
-	 */
-	private final static String charset = StandardCharsets.UTF_8.name();
 
 	/*
 	 * (non-Javadoc)
@@ -179,6 +174,9 @@ public class LuceneBuilder implements IndexBuilder {
 				BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
 				String content = reader.lines().collect(Collectors.joining());
 
+				content = this.removeHttp(content);
+				reader.close();
+
 				// Almacenamos el contenido del documento, parseando con JSoup
 				String text = Jsoup.parse(content).text();
 
@@ -226,9 +224,19 @@ public class LuceneBuilder implements IndexBuilder {
 				FieldType type = new FieldType();
 				type.setIndexOptions(indexOptions);
 				type.setStoreTermVectors(true);
+				
+				// Leemos el contenido del archivo comprimido
+				InputStream stream = new FileInputStream(file);
+				BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+				String content = reader.lines().collect(Collectors.joining());
+				reader.close();
+				
+				
+				content = this.removeHttp(content);
+				
 
 				// Almacenamos el contenido del documento, parseando con JSoup
-				String text = Jsoup.parse(file, charset).text();
+				String text = Jsoup.parse(content).text();
 
 				doc.add(new Field("content", text, type));
 
@@ -237,6 +245,30 @@ public class LuceneBuilder implements IndexBuilder {
 
 			}
 		}
+
+	}
+
+	/**
+	 * Elimina la cabecera Http no eliminado por JSoup al no tratarse de codigo html
+	 * 
+	 * @param content: Pagina html con cabecera http
+	 * @return Contenido html sin la cabecera
+	 */
+	private String removeHttp(String content) {
+		// Filtramos la cabecera http manualmente
+		// Eliminando todo lo anterior a la etiqueta <html>
+		if (content.startsWith("HTTP/1.1")){
+			
+			int pos = content.indexOf("<html");
+			if (pos == -1)
+				pos = content.indexOf("<HTML");
+			if (pos != -1) {			
+				content = content.substring(pos);
+			}
+		}
+
+		
+		return content;
 
 	}
 
