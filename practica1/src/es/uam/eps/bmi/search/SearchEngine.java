@@ -8,5 +8,5 @@ import java.io.IOException;
  * @author pablo
  */
 public interface SearchEngine {
-    public SearchRanking search(String query, int cutoff) throws IOException;
+	public SearchRanking search(String query, int cutoff) throws IOException;
 }

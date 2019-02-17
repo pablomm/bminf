@@ -16,7 +16,7 @@ public class Ranking implements SearchRanking {
 	 * Iterador del ranking
 	 */
 	private RankingIterator iterator;
-	
+
 	/**
 	 * Numero de resultados en el ranking
 	 */

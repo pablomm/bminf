@@ -9,26 +9,23 @@ import es.uam.eps.bmi.search.ranking.SearchRankingIterator;
  * Implementacion de SearchRankingIterator
  *
  */
-public class RankingIterator implements SearchRankingIterator{
-	
-	
+public class RankingIterator implements SearchRankingIterator {
+
 	/**
 	 * Longitud del Ranking
 	 */
 	private int length;
-	
-	
+
 	/**
 	 * Posicion actual en el ranking
 	 */
 	private int n = 0;
-	
-	
+
 	/**
 	 * Lista de resultados
 	 */
 	private List<RankingDoc> results;
-	
+
 	/**
 	 * @param results Lista de resultados de la consulta
 	 */
@@ -36,10 +33,11 @@ public class RankingIterator implements SearchRankingIterator{
 		this.length = results.size();
 		this.results = results;
 
-		
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.util.Iterator#hasNext()
 	 */
 	@Override
@@ -48,18 +46,19 @@ public class RankingIterator implements SearchRankingIterator{
 		return n < length;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.util.Iterator#next()
 	 */
 	@Override
 	public SearchRankingDoc next() {
-		
-		if(n >= length) {
+
+		if (n >= length) {
 			return null;
 		}
 
 		return results.get(n++);
 	}
-	
 
 }

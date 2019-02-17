@@ -27,7 +27,7 @@ public interface Index {
 	 * Calcula la frecuencia de un termino en un documento
 	 * 
 	 * @param word
-	 * @param docID: Id del documento
+	 * @param      docID: Id del documento
 	 * @return Frecuencia del termino
 	 * @throws IOException
 	 */

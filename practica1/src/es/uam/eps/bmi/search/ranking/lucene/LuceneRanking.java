@@ -11,12 +11,11 @@ import es.uam.eps.bmi.search.ranking.SearchRankingDoc;
 public class LuceneRanking implements SearchRanking {
 
 	private LuceneRankingIterator rankingIterator;
-	
+
 	public LuceneRanking(LuceneIndex index, ScoreDoc[] r) {
 		this.rankingIterator = new LuceneRankingIterator(index, r);
 	}
-	
-	
+
 	@Override
 	public Iterator<SearchRankingDoc> iterator() {
 		// TODO Auto-generated method stub
@@ -25,7 +24,7 @@ public class LuceneRanking implements SearchRanking {
 
 	@Override
 	public int size() {
-		
+
 		// Devuelve la longitud de resultados
 		// Almacenados en el iterador
 		return rankingIterator.results.length;

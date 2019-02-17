@@ -19,7 +19,6 @@ public class LuceneEngine extends AbstractEngine {
 	private IndexSearcher searcher = null;
 	private String indexPath;
 
-
 	/**
 	 * @param indexPath Path al indice
 	 * @throws IOException
@@ -90,7 +89,6 @@ public class LuceneEngine extends AbstractEngine {
 
 				e.printStackTrace();
 			}
-			
 
 		}
 		return this.searcher;

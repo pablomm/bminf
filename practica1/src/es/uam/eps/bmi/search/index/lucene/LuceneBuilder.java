@@ -8,9 +8,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -44,13 +46,17 @@ public class LuceneBuilder implements IndexBuilder {
 	 */
 	private final static IndexOptions indexOptions = IndexOptions.DOCS_AND_FREQS;
 
+	public void build(String collectionPath, String indexPath) throws IOException {
+		this.build(collectionPath, indexPath, null);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see es.uam.eps.bmi.search.index.IndexBuilder#build(java.lang.String,
 	 * java.lang.String)
 	 */
-	public void build(String collectionPath, String indexPath) throws IOException {
+	public void build(String collectionPath, String indexPath, String modulesPath) throws IOException {
 
 		// Directorio donde se creara el indice
 		Directory directory = FSDirectory.open(Paths.get(indexPath));
@@ -81,6 +87,9 @@ public class LuceneBuilder implements IndexBuilder {
 		}
 
 		builder.close();
+
+		if (modulesPath != null)
+			computeDocsModules(indexPath, modulesPath);
 
 	}
 
@@ -224,16 +233,14 @@ public class LuceneBuilder implements IndexBuilder {
 				FieldType type = new FieldType();
 				type.setIndexOptions(indexOptions);
 				type.setStoreTermVectors(true);
-				
+
 				// Leemos el contenido del archivo comprimido
 				InputStream stream = new FileInputStream(file);
 				BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
 				String content = reader.lines().collect(Collectors.joining());
 				reader.close();
-				
-				
+
 				content = this.removeHttp(content);
-				
 
 				// Almacenamos el contenido del documento, parseando con JSoup
 				String text = Jsoup.parse(content).text();
@@ -257,19 +264,78 @@ public class LuceneBuilder implements IndexBuilder {
 	private String removeHttp(String content) {
 		// Filtramos la cabecera http manualmente
 		// Eliminando todo lo anterior a la etiqueta <html>
-		if (content.startsWith("HTTP/1.1")){
-			
+		if (content.startsWith("HTTP/1.1")) {
+
 			int pos = content.indexOf("<html");
 			if (pos == -1)
 				pos = content.indexOf("<HTML");
-			if (pos != -1) {			
+			if (pos != -1) {
 				content = content.substring(pos);
 			}
 		}
 
-		
 		return content;
 
+	}
+
+	/**
+	 * Calcula y almacena los modulos de los documentos
+	 * 
+	 * @param modulesPath Fichero donde almacenar los modulos
+	 * @throws IOException
+	 */
+	private void computeDocsModules(String indexPath, String modulesPath) throws IOException {
+
+		// Abrimos el indice creado
+		LuceneIndex index = new LuceneIndex(indexPath);
+
+		// Escritor en el fichero de modulos
+		PrintWriter writer = new PrintWriter(modulesPath);
+
+		// Obtenemos todos los terminos del indice
+		List<String> terms = index.getAllTerms();
+
+		int nDocs = index.getIndex().numDocs();
+
+		double log2 = Math.log(2);
+		double smoothNDocs = nDocs + 1.0;
+
+		// Iteramos sobre los ids de documentos
+		for (int docID = 0; docID < nDocs; docID++) {
+
+			double module = 0.0;
+			// Iteramos sobre el vocabulario, calculamos |doc|^2
+			for (String word : terms) {
+
+				// Frecuencia de la palabra en el documento
+				long freq = index.getTermFreq(word, docID);
+
+				if (freq != 0) { // Si no aparece no aporta nada al documento
+
+					// Calculamos su tf
+					double tf = 1 + Math.log(freq) / log2;
+
+					// idf suavizado (|D| + 1) / (|Dt| + 0.5)
+					double idf = Math.log(smoothNDocs / (0.5 + index.getDocFreq(word)));
+
+					// Sumamos componente al cuadrado
+					module += Math.pow(tf * idf, 2);
+
+				}
+
+			}
+
+			// Raiz cuadrada, para obtener el modulo del documento
+			module = Math.sqrt(module);
+
+			// Escribimos en el fichero de modulos,
+			// Guardados en orden, por tanto no es necesario ningun tipo
+			// de identificacion mas
+			writer.println(module);
+
+		}
+
+		writer.close();
 	}
 
 }

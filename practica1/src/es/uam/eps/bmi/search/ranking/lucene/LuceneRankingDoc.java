@@ -10,22 +10,23 @@ import org.apache.lucene.search.ScoreDoc;
  * @author pablo
  */
 public class LuceneRankingDoc extends SearchRankingDoc {
-    Index index;
-    ScoreDoc rankedDoc;
-    
-    LuceneRankingDoc (Index idx, ScoreDoc r) {
-        index = idx;
-        rankedDoc = r;
-    }
-    public double getScore() {
-        return rankedDoc.score;
-    }
+	Index index;
+	ScoreDoc rankedDoc;
 
-    public int getDocID() {
-        return rankedDoc.doc;
-    }
+	LuceneRankingDoc(Index idx, ScoreDoc r) {
+		index = idx;
+		rankedDoc = r;
+	}
 
-    public String getPath() throws IOException {
-        return index.getDocPath(rankedDoc.doc);
-    }
+	public double getScore() {
+		return rankedDoc.score;
+	}
+
+	public int getDocID() {
+		return rankedDoc.doc;
+	}
+
+	public String getPath() throws IOException {
+		return index.getDocPath(rankedDoc.doc);
+	}
 }
