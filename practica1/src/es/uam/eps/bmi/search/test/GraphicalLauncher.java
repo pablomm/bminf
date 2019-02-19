@@ -1,12 +1,13 @@
 /**
  * 
  */
-package es.uam.eps.bmi.search.ui;
+package es.uam.eps.bmi.search.test;
 
 import es.uam.eps.bmi.search.ui.view.BuilderWindow;
 
+
 /**
- * 
+ * Lanza la interfaz grafica
  *
  */
 public class GraphicalLauncher {

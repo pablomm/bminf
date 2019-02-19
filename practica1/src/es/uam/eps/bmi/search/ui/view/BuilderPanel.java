@@ -52,16 +52,18 @@ public class BuilderPanel extends JPanel {
 
 		// Adding user text field
 		indexPath.setBounds(80, 160, 240, 25);
+		indexPath.setText("res/index");
 		indexPath.addActionListener(new BuilderController(window, this));
 		this.add(indexPath);
 
 		// Adding password label
-		JLabel modulesLabel = new JLabel("Fichero con modulos (opcional)");
+		JLabel modulesLabel = new JLabel("Fichero con modulos");
 		modulesLabel.setBounds(80, 190, 240, 25);
 		this.add(modulesLabel);
 
 		// Adding password field
 		modulesPath.setBounds(80, 220, 240, 25);
+		modulesPath.setText("modules.txt");
 		modulesPath.addActionListener(new BuilderController(window, this));
 		this.add(modulesPath);
 

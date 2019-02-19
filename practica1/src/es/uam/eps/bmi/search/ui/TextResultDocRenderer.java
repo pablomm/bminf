@@ -17,7 +17,7 @@ public class TextResultDocRenderer {
 		String s = "";
 
 		try {
-			s = String.format("%.3f", rankingDoc.getScore()) + "\t| " + rankingDoc.getPath();
+			s = String.format("%.8f", rankingDoc.getScore()) + "\t" + rankingDoc.getPath();
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

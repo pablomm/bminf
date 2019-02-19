@@ -1,6 +1,8 @@
 package es.uam.eps.bmi.search.index.lucene;
 
 import es.uam.eps.bmi.search.index.IndexBuilder;
+import es.uam.eps.bmi.search.index.freq.FreqVector;
+import es.uam.eps.bmi.search.index.freq.TermFreq;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -12,6 +14,7 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -45,9 +48,30 @@ public class LuceneBuilder implements IndexBuilder {
 	 * OFFSETS.
 	 */
 	private final static IndexOptions indexOptions = IndexOptions.DOCS_AND_FREQS;
+	
+	
+	/**
+	 * Fichero por defecto donde almacenar modulos.
+	 */
+	private final static String defaultModulesFile = "modules.txt";
+	
+	
+	/**
+	 * Analizador
+	 */
+	private Analyzer analyzer;
+	
+	public LuceneBuilder(Analyzer analyzer) {
+		super();
+		this.analyzer = analyzer;
+	}
+	
+	public LuceneBuilder() {
+		this(new StandardAnalyzer());
+	}
 
 	public void build(String collectionPath, String indexPath) throws IOException {
-		this.build(collectionPath, indexPath, null);
+		this.build(collectionPath, indexPath, defaultModulesFile);
 	}
 
 	/*
@@ -62,7 +86,7 @@ public class LuceneBuilder implements IndexBuilder {
 		Directory directory = FSDirectory.open(Paths.get(indexPath));
 
 		// Inicio creacion del índice
-		Analyzer analyzer = new StandardAnalyzer();
+
 		IndexWriterConfig config = new IndexWriterConfig(analyzer);
 
 		// Modo de apertura del indice
@@ -291,35 +315,53 @@ public class LuceneBuilder implements IndexBuilder {
 
 		// Escritor en el fichero de modulos
 		PrintWriter writer = new PrintWriter(modulesPath);
-
-		// Obtenemos todos los terminos del indice
-		List<String> terms = index.getAllTerms();
-
+		
 		int nDocs = index.getIndex().numDocs();
 
 		double log2 = Math.log(2);
 		double smoothNDocs = nDocs + 1.0;
+
+		// Obtenemos todos los terminos del indice
+		List<String> terms = index.getAllTerms();
+		
+		// Calculamos todos los idfs
+		HashMap<String, Double> idfs = new HashMap<String, Double>();
+		for (String term: terms) {
+			
+			// idf suavizado (|D| + 1) / (|Dt| + 0.5)
+			Double idf = Math.log(smoothNDocs / (0.5 + index.getDocFreq(term))) / log2;
+			idfs.put(term, idf);
+		}
+
+
 
 		// Iteramos sobre los ids de documentos
 		for (int docID = 0; docID < nDocs; docID++) {
 
 			double module = 0.0;
 			// Iteramos sobre el vocabulario, calculamos |doc|^2
-			for (String word : terms) {
+			
+			FreqVector freqVector = index.getDocVector(docID);
+			
+			
+			for (TermFreq term : freqVector) {
 
 				// Frecuencia de la palabra en el documento
-				long freq = index.getTermFreq(word, docID);
+				long freq = term.getFreq();
 
 				if (freq != 0) { // Si no aparece no aporta nada al documento
 
 					// Calculamos su tf
 					double tf = 1 + Math.log(freq) / log2;
 
-					// idf suavizado (|D| + 1) / (|Dt| + 0.5)
-					double idf = Math.log(smoothNDocs / (0.5 + index.getDocFreq(word)));
-
+					// Obtenemos el idf previamente suavizado
+					double idf = idfs.getOrDefault(term.getTerm(), 0.0);
+					
+					// td-idf
+					double tfidf = tf * idf;
+					
 					// Sumamos componente al cuadrado
-					module += Math.pow(tf * idf, 2);
+					module += tfidf * tfidf;
 
 				}
 

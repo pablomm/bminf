@@ -26,7 +26,7 @@ public class TermStats {
 	/**
 	 * Path a la coleccion a indexar
 	 */
-	public final static String collectionPath = "urls.txt";
+	public final static String collectionPath = "collections/docs1k.zip";
 
 	/**
 	 * Path adonde construir el indice

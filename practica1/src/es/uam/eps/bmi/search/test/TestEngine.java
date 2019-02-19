@@ -33,8 +33,8 @@ public class TestEngine {
 		System.out.println(f.getAbsolutePath());
 		System.out.println(f.isDirectory() ? "true" : "false");
 		testCollection("src/es/uam/eps/bmi/search/ranking/", "index/src", "size", "public abstract");
-		testCollection("docs1k.zip", "index/docs", "seat", "obama family tree");
-		testCollection("urls.txt", "index/urls", "wikipedia", "information probability");
+		testCollection("collections/docs1k.zip", "index/docs", "seat", "obama family tree");
+		testCollection("collections/urls.txt", "index/urls", "wikipedia", "information probability");
 	}
 
 	static void testCollection(String collectionPath, String indexPath, String word, String query) throws IOException {
