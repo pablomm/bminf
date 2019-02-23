@@ -91,6 +91,19 @@ public class DocBasedVSMEngine extends AbstractVSMEngine {
 				}
 			}
 		}
+		
+		// Vaciamos el resto del heap
+		while (!postHeap.isEmpty()) {
+			ScoreDoc first = postHeap.element();
+			
+			// Obtenemos el score parcial
+			double scoreParcial = scores.getOrDefault(first.doc, 0.0);
+			// Actualizamos el valor
+			scores.put(first.doc, scoreParcial + first.score);
+			
+			// Extraemos el min que hemos accedido
+			postHeap.remove();
+		}
 
 		// Incluimos en el ranking las busquedas
 		for (Map.Entry<Integer, Double> entry : scores.entrySet()) {
