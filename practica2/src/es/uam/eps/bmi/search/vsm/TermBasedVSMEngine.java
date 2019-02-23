@@ -49,10 +49,10 @@ public class TermBasedVSMEngine extends AbstractVSMEngine {
 				double scoreParcial = scores.getOrDefault(docId, 0.0);
 
 				// TF-IDF de la palabra en el documento
-				double tf = tfidf(posting.getFreq(), docFreq, numDocs);
+				double tfidf = tfidf(posting.getFreq(), docFreq, numDocs);
 
 				// Actualizamos el valor
-				scores.put(docId, scoreParcial + tf);
+				scores.put(docId, scoreParcial + tfidf);
 
 			}
 
