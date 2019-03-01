@@ -20,8 +20,8 @@ public class TermBasedVSMEngine extends AbstractVSMEngine {
 	@Override
 	public SearchRanking search(String query, int cutoff) throws IOException {
 
-		// Separamos por blancos la query
-		String[] terms = query.split(" ");
+		// Parseamos la query
+		String[] terms = this.parse(query);
 
 		int numDocs = index.numDocs();
 
@@ -60,7 +60,9 @@ public class TermBasedVSMEngine extends AbstractVSMEngine {
 
 		// Incluimos en el ranking las busquedas
 		for (Map.Entry<Integer, Double> entry : scores.entrySet()) {
-			ranking.add(entry.getKey(), entry.getValue());
+			int docID = entry.getKey();
+			
+			ranking.add(docID, entry.getValue()/index.getDocNorm(docID));
 		}
 
 		return ranking;

@@ -1,31 +1,37 @@
 package es.uam.eps.bmi.search.ranking.impl;
 
-import org.apache.lucene.search.ScoreDoc;
 
-import es.uam.eps.bmi.search.index.Index;
+import java.util.Iterator;
+import java.util.List;
+
 import es.uam.eps.bmi.search.ranking.SearchRankingDoc;
 import es.uam.eps.bmi.search.ranking.SearchRankingIterator;
 
+/**
+ * Implementacion propia del iterador del ranking
+ * Es un wrapper entre el iterador de la lista interna de resultados
+ */
 public class RankingIteratorImpl  implements SearchRankingIterator {
 	
-	private ScoreDoc results[];
-    private Index index;
-    int n = 0;
+	/**
+	 * Iterador de resultados
+	 */
+	private Iterator<RankingDocImpl> it;
 
-    public RankingIteratorImpl (Index index, ScoreDoc results[]) {
-        this.index = index;
-        this.results = results;
+    public RankingIteratorImpl (List<RankingDocImpl> results) {
+        this.it = results.iterator();
     }
 
 	@Override
 	public boolean hasNext() {
 
-		return n < results.length;
+		return it.hasNext();
 	}
 
 	@Override
 	public SearchRankingDoc next() {
-		return new RankingDocImpl(index, results[n++]);
+		
+		return it.next();
 	}
 
 }

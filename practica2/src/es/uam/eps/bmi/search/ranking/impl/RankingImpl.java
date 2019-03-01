@@ -1,10 +1,10 @@
 package es.uam.eps.bmi.search.ranking.impl;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.PriorityQueue;
-
-import org.apache.lucene.search.ScoreDoc;
 
 import es.uam.eps.bmi.search.index.Index;
 import es.uam.eps.bmi.search.ranking.SearchRanking;
@@ -12,33 +12,53 @@ import es.uam.eps.bmi.search.ranking.SearchRankingDoc;
 
 public class RankingImpl implements SearchRanking {
 
-	private PriorityQueue<ScoreDoc> heap;
-	private int cutoff;
+	private PriorityQueue<RankingDocImpl> heap;
+
 	private Index index;
+	private int cutoff;
+
 
 	public RankingImpl(Index index, int cutoff) {
-		this.cutoff = cutoff;
+
 		this.index = index;
+		this.cutoff = cutoff;
+		
 		// Heap con orden ascendente
-		heap = new PriorityQueue<ScoreDoc>(cutoff);
+		heap = new PriorityQueue<RankingDocImpl>(cutoff+1);
+
 	}
 
 	@Override
 	public Iterator<SearchRankingDoc> iterator() {
+		
+		
+		
+		List<RankingDocImpl> results = new ArrayList<RankingDocImpl>();
+		// Extracts in order 
+		while(!heap.isEmpty())
+			results.add(heap.poll());
+		
+		Collections.reverse(results);
 
-		return new RankingIteratorImpl(index, heap.toArray(new ScoreDoc[0]));
+		// Resultados ordenados inversamente
+		return new RankingIteratorImpl(results);
 	}
 
 	@Override
 	public int size() {
-		// TODO Auto-generated method stub
-		return 0;
+
+		return heap.size();
 	}
+	
 
 	public void add(int docId, double score) {
 		
-		heap.add(new ScoreDoc(docId, (float) score));
+		heap.add(new RankingDocImpl(index, score, docId));
+		System.out.println(score);
 		
+		if (heap.size() > cutoff) {
+			heap.poll();
+		}
 	}
 
 }

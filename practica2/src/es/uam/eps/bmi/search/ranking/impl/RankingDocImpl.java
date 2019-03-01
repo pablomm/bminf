@@ -1,15 +1,13 @@
 package es.uam.eps.bmi.search.ranking.impl;
 
-import java.io.IOException;
 
-import org.apache.lucene.search.ScoreDoc;
+import java.io.IOException;
 
 import es.uam.eps.bmi.search.index.Index;
 import es.uam.eps.bmi.search.ranking.SearchRankingDoc;
 
 /**
- * @author pablomm
- *
+ * Implementacion del SarchRankingDoc
  */
 public class RankingDocImpl extends SearchRankingDoc {
 
@@ -26,12 +24,26 @@ public class RankingDocImpl extends SearchRankingDoc {
 	/**
 	 * Ruta del documento
 	 */
-	private String path = null;
-
+	private String path;
+	
+	
 	/**
-	 * Indice
+	 * Indice donde esta almacenado el documento 
 	 */
 	private Index index = null;
+
+	/**
+	 * Implementacion de Search ranking doc
+	 * 
+	 * @param score Puntuacion del documento
+	 * @param docID Id del documento
+	 */
+	public RankingDocImpl(Index index, double score, int docID) {
+		this(score, docID, null);
+		this.index = index;
+
+	}
+
 
 	/**
 	 * Implementacion de Search ranking doc
@@ -44,21 +56,6 @@ public class RankingDocImpl extends SearchRankingDoc {
 		this.score = score;
 		this.docID = docID;
 		this.path = path;
-
-	}
-
-	/**
-	 * Implementacion de Search ranking doc
-	 * 
-	 * @param index Indice donde se almacena el documento
-	 * @param score Puntuacion del documento
-	 * @param docID Id del documento
-	 *
-	 */
-	public RankingDocImpl(Index index, ScoreDoc scoreDoc) {
-		this.score = scoreDoc.score;
-		this.docID = scoreDoc.doc;
-		this.index = index;
 	}
 
 	/*
@@ -89,12 +86,17 @@ public class RankingDocImpl extends SearchRankingDoc {
 	 */
 	@Override
 	public String getPath() throws IOException {
-
-		if (path != null)
-
+		if (path == null) {
+			this.path = this.index.getDocPath(this.docID);
+		}
 			return path;
+	}
 
-		return index.getDocPath(docID);
+	/**
+	 * @param path Nuevo path 
+	 */
+	public void setPath(String path) {
+		this.path = path;
 	}
 
 }
