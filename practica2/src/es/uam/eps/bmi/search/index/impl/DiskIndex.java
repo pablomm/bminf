@@ -4,7 +4,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,11 +14,7 @@ import es.uam.eps.bmi.search.index.NoIndexException;
 import es.uam.eps.bmi.search.index.structure.PostingsList;
 import es.uam.eps.bmi.search.index.structure.impl.PostingsListImpl;
 
-/**
- * Indice Serializado cargado en RAM
- *
- */
-public class SerializedRAMIndex extends AbstractIndex {
+public class DiskIndex extends AbstractIndex {
 
 	/**
 	 * Lista de paths de los documentos indexados por ID
@@ -38,7 +33,7 @@ public class SerializedRAMIndex extends AbstractIndex {
 	 * @param postings Diccionario con listas de postings indexadas por termino
 	 * @throws FileNotFoundException
 	 */
-	public SerializedRAMIndex(String indexPath, ArrayList<String> paths, HashMap<String, PostingsListImpl> postings)
+	public DiskIndex(String indexPath, ArrayList<String> paths, HashMap<String, PostingsListImpl> postings)
 			throws FileNotFoundException {
 		this.paths = paths;
 		this.postings = postings;
@@ -47,7 +42,7 @@ public class SerializedRAMIndex extends AbstractIndex {
 	}
 
 	@SuppressWarnings("unchecked")
-	public SerializedRAMIndex(String indexPath) throws NoIndexException {
+	public DiskIndex(String indexPath) throws NoIndexException {
 
 		// Leemos el diccionario con los postings
 		FileInputStream file;
@@ -82,38 +77,38 @@ public class SerializedRAMIndex extends AbstractIndex {
 
 	@Override
 	public int numDocs() {
-
-		return paths.size();
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 	@Override
 	public PostingsList getPostings(String term) throws IOException {
-
-		return this.postings.get(term);
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
 	public Collection<String> getAllTerms() throws IOException {
-
-		return this.postings.keySet();
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
 	public long getTotalFreq(String term) throws IOException {
-
-		return this.postings.get(term).getTotalFreq();
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 	@Override
 	public long getDocFreq(String term) throws IOException {
-
-		// La frecuencia de documentos es la longitud de la lista de postings
-		return this.postings.get(term).size();
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 	@Override
 	public String getDocPath(int docID) throws IOException {
-		return paths.get(docID);
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
