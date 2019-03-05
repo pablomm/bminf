@@ -20,7 +20,7 @@ import es.uam.eps.bmi.search.util.Timer;
 import es.uam.eps.bmi.search.vsm.DocBasedVSMEngine;
 import es.uam.eps.bmi.search.vsm.SlowVSMEngine;
 import es.uam.eps.bmi.search.vsm.TermBasedVSMEngine;
-import java.io.File;
+//import java.io.File;
 import java.io.IOException;
 
 /**
@@ -35,26 +35,26 @@ public class TestEngine2 {
     public static void main (String a[]) throws IOException {
         
         ///////////////////////////////////
-        // Índices: pruebas de correción //
+        // Ã�ndices: pruebas de correciÃ³n //
         ///////////////////////////////////
         
-        String collPath = "collections/urls.txt";
+        //String collPath = "collections/urls.txt";
         String baseIndexPath = "index/urls";
 
-        // Construcción
+        // ConstrucciÃ³n
         //new LuceneForwardIndexBuilder().build(collPath, baseIndexPath + "/lucene/forward");
         //new LuceneBuilder().build(collPath, baseIndexPath + "/lucene");
         //new SerializedRAMIndexBuilder().build(collPath, baseIndexPath + "/ram");
         //new DiskIndexBuilder().build(collPath, baseIndexPath + "/disk");
         
-        // Excepción
+        // ExcepciÃ³n
         try {
             new SerializedRAMIndex("here");
         } catch (NoIndexException ex) {
             System.out.println("No index in " + ex.getFolder());
         }
         
-        // Inspección
+        // InspecciÃ³n
         System.out.println("-----------------------");
         System.out.println("Checking index correction on URL collection");
         testIndex(new LuceneForwardIndex(baseIndexPath + "/lucene/forward"), "information");
@@ -63,7 +63,7 @@ public class TestEngine2 {
         //testIndex(new DiskIndex(baseIndexPath + "/disk"), "information");
 
         /////////////////////////////////////
-        // Índices: pruebas de rendimiento //
+        // Ã�ndices: pruebas de rendimiento //
         /////////////////////////////////////
         
         testIndexPerformance("1k", "collections/docs1k.zip", "index/1k");
@@ -71,7 +71,7 @@ public class TestEngine2 {
         ///testIndexPerformance("100k", "collections/docs100k.zip", "index/100k");
 
         /////////////////////////////////////
-        // Búsqueda: pruebas de corrección //
+        // BÃºsqueda: pruebas de correcciÃ³n //
         /////////////////////////////////////
 
         System.out.println("-----------------------");
@@ -94,7 +94,7 @@ public class TestEngine2 {
         //testSearch(new DocBasedVSMEngine(diskIndex), query, 5);
        
         //////////////////////////////////////
-        // Búsqueda: pruebas de rendimiento //
+        // BÃºsqueda: pruebas de rendimiento //
         //////////////////////////////////////
 
         testSearchPerformance("1k", "index/1k", "obama family tree", 5);
