@@ -1,21 +1,27 @@
 package es.uam.eps.bmi.search.index.impl;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import es.uam.eps.bmi.search.index.AbstractIndexBuilder;
 import es.uam.eps.bmi.search.index.Config;
 import es.uam.eps.bmi.search.index.Index;
-import es.uam.eps.bmi.search.index.AbstractIndexBuilder;
 import es.uam.eps.bmi.search.index.structure.Posting;
 import es.uam.eps.bmi.search.index.structure.impl.PostingsListImpl;
 
+/**
+ * Constructor del indice en RAM, almacena la lista de paths en el fichero
+ * indexPath/Config.PATHS_FILE y el diccionario con postings en el fichero
+ * indexPath/Config.INDEX_PATH.
+ */
 public class DiskIndexBuilder extends AbstractIndexBuilder {
-
+	
 	private String indexPath;
 
 	/**
@@ -32,6 +38,11 @@ public class DiskIndexBuilder extends AbstractIndexBuilder {
 	 * Contador de docID
 	 */
 	private int docId = 0;
+	
+	// Hash Map (term, freq)
+	private HashMap<String, Long> freqs = new HashMap<String, Long>();
+	
+	private HashMap<String, Long> positions;
 
 	@Override
 	public void build(String collectionPath, String indexPath) throws IOException {
@@ -52,21 +63,65 @@ public class DiskIndexBuilder extends AbstractIndexBuilder {
 			indexURLs(f);
 		}
 
-		// Guardamos el hashmap con Postings
-		FileOutputStream fos = new FileOutputStream(indexPath + "/" + Config.INDEX_FILE);
-		ObjectOutputStream oos = new ObjectOutputStream(fos);
-		oos.writeObject(postings);
-		oos.close();
-
-		// Guardamos la lista de paths
-		fos = new FileOutputStream(indexPath + "/" + Config.PATHS_FILE);
-		oos = new ObjectOutputStream(fos);
-		oos.writeObject(paths);
-		oos.close();
+		// Guardamos en disco el indice
+		writeIndex();
 
 		// Guardamos las normas
 		saveDocNorms(indexPath);
 
+	}
+	
+	
+	protected void writeIndex() throws IOException {
+		
+		// HashMap con Terminos y Posicion en el archivo de postings
+		positions = new HashMap<String, Long>();
+		
+		// Escritor en el fichero de postings
+		RandomAccessFile access = new RandomAccessFile(new File(Config.POSTINGS_FILE), "w");
+		
+		// Iteramos sobre el indice en ram
+		for(Entry<String, PostingsListImpl> entry : postings.entrySet()) {
+			
+			String term = entry.getKey();
+			PostingsListImpl post_list = entry.getValue();
+			
+			long offset = access.getFilePointer();
+			
+			// Almacenamos el offset asociado a la palabra
+			positions.put(term, offset);
+			
+			// Escribimos el numero de postings
+			access.writeInt(post_list.size());
+			
+			// Iteramos sobre los posintgs de la palabra
+			for(Posting post : post_list) {
+				// Escribimos el docId y la freq
+				access.writeInt(post.getDocID());
+				access.writeLong(post.getFreq());
+			}
+		}
+		access.close();
+		
+		// Ahora guardamos en disco (de forma no muy eficiente) (termino, offset)
+		PrintWriter writer = new PrintWriter(new File(Config.DICTIONARY_FILE));
+		
+		// Iteramos por diccionario de strings / offsets
+		
+		for(Entry<String, Long> entry : positions.entrySet()) {
+			String term = entry.getKey();
+			Long offset = entry.getValue();
+			
+			writer.println(term + " " + offset);	
+		}
+		writer.close();
+		
+		// Guardamos los paths en disco
+		writer = new PrintWriter(new File(Config.PATHS_FILE));
+		for(String path : paths) {
+			writer.println(path);
+		}
+		writer.close();
 	}
 
 	@Override
@@ -75,8 +130,7 @@ public class DiskIndexBuilder extends AbstractIndexBuilder {
 		// Parseamos las palabras del documento igual que en el engine
 		String[] words = text.toLowerCase().split("\\P{Alpha}+");
 
-		// Hash Map (term, freq)
-		HashMap<String, Long> freqs = new HashMap<String, Long>();
+		freqs.clear();
 
 		// Iteramos sobre los terminos del documento y contamos sus frecuencias
 		for (String word : words) {
@@ -112,7 +166,7 @@ public class DiskIndexBuilder extends AbstractIndexBuilder {
 	protected Index getCoreIndex() throws IOException {
 		// Creamos el indice con la version en RAM ya cargada,
 		// Sin tener que leer del disco nuevamente
-		return new SerializedRAMIndex(indexPath, paths, postings);
+		return new DiskIndex(indexPath, this.paths, this.positions, false);
 	}
 
 }

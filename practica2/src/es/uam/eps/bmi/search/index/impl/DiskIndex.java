@@ -1,170 +1,182 @@
 package es.uam.eps.bmi.search.index.impl;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Collection;
 // import java.util.HashMap;
+import java.util.HashMap;
 
 import es.uam.eps.bmi.search.index.AbstractIndex;
 import es.uam.eps.bmi.search.index.Config;
 import es.uam.eps.bmi.search.index.NoIndexException;
+import es.uam.eps.bmi.search.index.structure.Posting;
 import es.uam.eps.bmi.search.index.structure.PostingsList;
 import es.uam.eps.bmi.search.index.structure.impl.PostingsListImpl;
 
 public class DiskIndex extends AbstractIndex {
+	
+	private String indexPath=null;
 
 	/**
 	 * Lista de paths de los documentos indexados por ID
 	 */
 	private ArrayList<String> paths;
 	
-	private String indexPath=null;
-
 	/**
 	 * Diccionario con listas de postings indexadas por termino
 	 */
-	// private HashMap<String, PostingsListImpl> postings;
+	private HashMap<String, Long> offsets = new HashMap<String, Long>();
 
 	/**
-	 * Version para cargar el indice sin leer de disco por eficiencia
-	 * 
-	 * @param paths    Lista de paths de los documentos indexados por ID
-	 * @param postings Diccionario con listas de postings indexadas por termino
-	 * @throws FileNotFoundException
+	 * Punto de acceso para lectura de los offsets
 	 */
-	public DiskIndex(String indexPath, ArrayList<String> paths)
-			throws FileNotFoundException {
-		this.indexPath=indexPath;
+	private RandomAccessFile access;
+	
+	public DiskIndex(String indexPath, ArrayList<String> paths, HashMap<String, Long> offsets, boolean load_norms_flag) throws NoIndexException {
+
+		this.indexPath = indexPath;
 		this.paths = paths;
-		// this.postings = postings;
+		this.offsets = offsets;
 
-		loadNorms(indexPath);
-	}
-
-	@SuppressWarnings("unchecked")
-	public DiskIndex(String indexPath) throws NoIndexException {
-
-		this.indexPath=indexPath;
-		
-		// Leemos el diccionario con los postings
-		FileInputStream file;
 		try {
-			/*file = new FileInputStream(indexPath + "/" + Config.INDEX_FILE);
-
-			ObjectInputStream in = new ObjectInputStream(file);
-
-			// Leemos el diccionario de postings
-			this.postings = (HashMap<String, PostingsListImpl>) in.readObject();
-
-			in.close();
-			file.close();*/
-
-			// Leemos el diccionario con los postings
-			file = new FileInputStream(indexPath + "/" + Config.PATHS_FILE);
-			ObjectInputStream in = new ObjectInputStream(file);
-
-			// Leemos el diccionario de postings
-			this.paths = (ArrayList<String>) in.readObject();
-
-			in.close();
-			file.close();
-
+			this.access = new RandomAccessFile(new File(Config.POSTINGS_FILE), "r");
+			
 			// Cargamos las normas
-			this.loadNorms(indexPath);
-
-		} catch (IOException | ClassNotFoundException e) {
+			if (load_norms_flag)
+				this.loadNorms(indexPath);
+				
+		} catch (IOException e) {
 			throw new NoIndexException(indexPath);
 		}
 	}
 
+
+	public DiskIndex(String indexPath) throws NoIndexException {
+
+		this.indexPath = indexPath;
+		
+
+		try {
+			
+			// Cargamos el indice
+			loadIndex();
+			
+			// Cargamos las normas
+			this.loadNorms(indexPath);
+
+		} catch (IOException e) {
+			throw new NoIndexException(indexPath);
+		}
+	}
+	
+	private void loadIndex() throws IOException {
+		
+		
+		FileReader freader = new FileReader(Config.PATHS_FILE);
+		
+		// Primero leemos los paths
+		BufferedReader reader = new BufferedReader(freader);
+		
+		String line;
+		while((line = reader.readLine()) != null) {
+			this.paths.add(line);
+		}
+		reader.close();
+		freader.close();
+		
+		// Leemos el hasmap de offsets
+		freader = new FileReader(Config.DICTIONARY_FILE);
+		reader = new BufferedReader(freader);
+		
+		while((line = reader.readLine()) != null) {
+			String[] spliteado = line.split(" ");
+			offsets.put(spliteado[0], Long.parseLong(spliteado[1]));
+		}
+		
+		reader.close();
+		freader.close();
+		
+		this.access = new RandomAccessFile(new File(Config.POSTINGS_FILE), "r");
+
+		
+	}
+
 	@Override
 	public int numDocs() {
-
 		return paths.size();
 	}
 
 	@Override
 	public PostingsList getPostings(String term) throws IOException {
-		FileInputStream file;
+
+		PostingsListImpl lista = new PostingsListImpl();
+		
 		try {
-			file = new FileInputStream(indexPath + "/" + term);
-
-			ObjectInputStream in = new ObjectInputStream(file);
-
-			// Leemos el diccionario de postings
-			PostingsList posting = (PostingsListImpl) in.readObject();
+			// Obtenemos el offset del termino
+			Long pos = this.offsets.get(term);
 			
-			in.close();
-			file.close();
-			return posting;
-		} catch (IOException | ClassNotFoundException e) {
+			// Hacemos un seek a la posicion
+			this.access.seek(pos);
+			
+			// Leemos el numero de postings
+			int n_postings = this.access.readInt();
+			
+			// Iteramos sobre los postings de la palabra
+			for(int i=0; i<n_postings; i++) {
+				
+				int docID = access.readInt();
+				long frecuencia = access.readLong();
+				
+				// Incluimos en la lista de postings
+				lista.add(new Posting(docID, frecuencia));
+			}
+
+			
+		} catch (IOException e) {
 			throw new NoIndexException(indexPath);
 		}
-		// return this.postings.get(term);
+
+		return lista;
 	}
 
 	@Override
 	public Collection<String> getAllTerms() throws IOException {
-		
-		File dir;
-		ArrayList<String> terms = new ArrayList<String>(); 
-		
-		dir=new File(indexPath);
-		File[] list = dir.listFiles();
-		for (File f : list) terms.add(f.getName());
-		
-		return terms;
-		// return this.postings.keySet();
+		return offsets.keySet();
 	}
 
 	@Override
 	public long getTotalFreq(String term) throws IOException {
-		FileInputStream file;
-		try {
-			file = new FileInputStream(indexPath + "/" + term);
 
-			ObjectInputStream in = new ObjectInputStream(file);
-
-			// Leemos el diccionario de postings
-			PostingsListImpl posting = (PostingsListImpl) in.readObject();
-			
-			in.close();
-			file.close();
-			return posting.getTotalFreq();
-		} catch (IOException | ClassNotFoundException e) {
-			throw new NoIndexException(indexPath);
-		}
-		// return this.postings.get(term).getTotalFreq();
+		return ((PostingsListImpl)this.getPostings(term)).getTotalFreq();
 	}
 
 	@Override
 	public long getDocFreq(String term) throws IOException {
-
-		// La frecuencia de documentos es la longitud de la lista de postings
-		FileInputStream file;
+		int n_postings = 0;
 		try {
-			file = new FileInputStream(indexPath + "/" + term);
-
-			ObjectInputStream in = new ObjectInputStream(file);
-
-			// Leemos el diccionario de postings
-			PostingsList posting = (PostingsListImpl) in.readObject();
+			// Obtenemos el offset del termino
+			Long pos = this.offsets.get(term);
 			
-			in.close();
-			file.close();
-			return posting.size();
-		} catch (IOException | ClassNotFoundException e) {
+			// Hacemos un seek a la posicion
+			this.access.seek(pos);
+			
+			// Leemos el numero de postings
+			n_postings = this.access.readInt();
+			
+			
+		} catch (IOException e) {
 			throw new NoIndexException(indexPath);
 		}
-		//return this.postings.get(term).size();
+
+		return n_postings;
 	}
 
 	@Override
 	public String getDocPath(int docID) throws IOException {
-		return paths.get(docID);
+		return this.paths.get(docID);
 	}
 }

@@ -4,9 +4,9 @@ import es.uam.eps.bmi.search.SearchEngine;
 import es.uam.eps.bmi.search.index.Index;
 import es.uam.eps.bmi.search.index.NoIndexException;
 import es.uam.eps.bmi.search.index.impl.DiskIndex;
-import es.uam.eps.bmi.search.index.impl.DiskIndexBuilder;
-import es.uam.eps.bmi.search.index.impl.SerializedRAMIndex;
 import es.uam.eps.bmi.search.index.impl.SerializedRAMIndexBuilder;
+import es.uam.eps.bmi.search.index.impl.SerializedRAMIndex;
+import es.uam.eps.bmi.search.index.impl.DiskIndexBuilder;
 import es.uam.eps.bmi.search.index.lucene.LuceneForwardIndex;
 import es.uam.eps.bmi.search.index.lucene.LuceneForwardIndexBuilder;
 import es.uam.eps.bmi.search.index.lucene.LuceneIndex;
@@ -40,8 +40,8 @@ public class TestEngine {
         // Construcción
         new LuceneForwardIndexBuilder().build(collPath, baseIndexPath + "/lucene/forward");
         new LuceneBuilder().build(collPath, baseIndexPath + "/lucene");
-        new SerializedRAMIndexBuilder().build(collPath, baseIndexPath + "/ram");
-        new DiskIndexBuilder().build(collPath, baseIndexPath + "/disk");
+        new DiskIndexBuilder().build(collPath, baseIndexPath + "/ram");
+        new SerializedRAMIndexBuilder().build(collPath, baseIndexPath + "/disk");
         
         // Excepción
         try {
@@ -115,9 +115,9 @@ public class TestEngine {
         Timer.time("\tLuceneForwardIndex:\t");
         new LuceneBuilder().build(collPath, baseIndexPath + "/lucene");
         Timer.time("\tLuceneIndex:\t");
-        new SerializedRAMIndexBuilder().build(collPath, baseIndexPath + "/ram");
+        new DiskIndexBuilder().build(collPath, baseIndexPath + "/ram");
         Timer.time("\tRAMIndex:\t");
-        new DiskIndexBuilder().build(collPath, baseIndexPath + "/disk");
+        new SerializedRAMIndexBuilder().build(collPath, baseIndexPath + "/disk");
         Timer.time("\tDiskIndex:\t");        
 
         Timer.reset("  Load time...");

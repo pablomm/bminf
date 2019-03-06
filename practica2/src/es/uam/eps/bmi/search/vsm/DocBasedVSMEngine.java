@@ -2,7 +2,6 @@ package es.uam.eps.bmi.search.vsm;
 
 import java.io.IOException;
 
-import java.util.Comparator;
 
 import java.util.Iterator;
 

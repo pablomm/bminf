@@ -6,7 +6,7 @@ import es.uam.eps.bmi.search.index.NoIndexException;
 //import es.uam.eps.bmi.search.index.impl.DiskIndex;
 //import es.uam.eps.bmi.search.index.impl.DiskIndexBuilder;
 import es.uam.eps.bmi.search.index.impl.SerializedRAMIndex;
-import es.uam.eps.bmi.search.index.impl.SerializedRAMIndexBuilder;
+import es.uam.eps.bmi.search.index.impl.DiskIndexBuilder;
 import es.uam.eps.bmi.search.index.lucene.LuceneForwardIndex;
 import es.uam.eps.bmi.search.index.lucene.LuceneForwardIndexBuilder;
 import es.uam.eps.bmi.search.index.lucene.LuceneIndex;
@@ -38,13 +38,13 @@ public class TestEngine2 {
         // Ã�ndices: pruebas de correciÃ³n //
         ///////////////////////////////////
         
-        //String collPath = "collections/urls.txt";
+        String collPath = "collections/urls.txt";
         String baseIndexPath = "index/urls";
-
+        /*
         // ConstrucciÃ³n
-        //new LuceneForwardIndexBuilder().build(collPath, baseIndexPath + "/lucene/forward");
-        //new LuceneBuilder().build(collPath, baseIndexPath + "/lucene");
-        //new SerializedRAMIndexBuilder().build(collPath, baseIndexPath + "/ram");
+        new LuceneForwardIndexBuilder().build(collPath, baseIndexPath + "/lucene/forward");
+        new LuceneBuilder().build(collPath, baseIndexPath + "/lucene");
+        new SerializedRAMIndexBuilder().build(collPath, baseIndexPath + "/ram");
         //new DiskIndexBuilder().build(collPath, baseIndexPath + "/disk");
         
         // ExcepciÃ³n
@@ -64,7 +64,7 @@ public class TestEngine2 {
 
         /////////////////////////////////////
         // Ã�ndices: pruebas de rendimiento //
-        /////////////////////////////////////
+        /////////////////////////////////////*/
         
         testIndexPerformance("1k", "collections/docs1k.zip", "index/1k");
         ///testIndexPerformance("10k", "collections/docs10k.zip", "index/10k");
@@ -74,23 +74,22 @@ public class TestEngine2 {
         // BÃºsqueda: pruebas de correcciÃ³n //
         /////////////////////////////////////
 
-        System.out.println("-----------------------");
+        /*System.out.println("-----------------------");
         System.out.println("Checking engine results on URL collection");
         String query = "information probability";
         Index luceneFwdIndex = new LuceneForwardIndex(baseIndexPath + "/lucene/forward");
         Index luceneIndex = new LuceneIndex(baseIndexPath + "/lucene");
-        Index ramIndex = new SerializedRAMIndex(baseIndexPath + "/ram");
-        //Index diskIndex = new DiskIndex(baseIndexPath + "/disk");
+        Index ramIndex = new SerializedRAMIndex(baseIndexPath + "/ram");*/
         
-        testSearch(new LuceneEngine(baseIndexPath + "/lucene"), query, 5);
-        testSearch(new SlowVSMEngine(luceneFwdIndex), query, 5);
+        //testSearch(new LuceneEngine(baseIndexPath + "/lucene"), query, 5);
+        //testSearch(new SlowVSMEngine(luceneFwdIndex), query, 5);
         
-        testSearch(new TermBasedVSMEngine(luceneIndex), query, 5);
-        testSearch(new TermBasedVSMEngine(ramIndex), query, 5);
+        //testSearch(new TermBasedVSMEngine(luceneIndex), query, 5);
+        //testSearch(new TermBasedVSMEngine(ramIndex), query, 5);
         //testSearch(new TermBasedVSMEngine(diskIndex), query, 5);
 
-        testSearch(new DocBasedVSMEngine(luceneIndex), query, 5);
-        testSearch(new DocBasedVSMEngine(ramIndex), query, 5);
+        //testSearch(new DocBasedVSMEngine(luceneIndex), query, 5);
+        //testSearch(new DocBasedVSMEngine(ramIndex), query, 5);
         //testSearch(new DocBasedVSMEngine(diskIndex), query, 5);
        
         //////////////////////////////////////
@@ -119,7 +118,7 @@ public class TestEngine2 {
         Timer.time("\tLuceneForwardIndex:\t");
         new LuceneBuilder().build(collPath, baseIndexPath + "/lucene");
         Timer.time("\tLuceneIndex:\t");
-        new SerializedRAMIndexBuilder().build(collPath, baseIndexPath + "/ram");
+        new DiskIndexBuilder().build(collPath, baseIndexPath + "/ram");
         Timer.time("\tRAMIndex:\t");
         //new DiskIndexBuilder().build(collPath, baseIndexPath + "/disk");
         Timer.time("\tDiskIndex:\t");        
@@ -164,6 +163,8 @@ public class TestEngine2 {
         
         //testSearch(new DocBasedVSMEngine(diskIndex), query, cutoff);
         Timer.time("  --> ");
+        
+        
     }
     
     static void testSearch (SearchEngine engine, String query, int cutoff) throws IOException {
