@@ -166,7 +166,7 @@ public class DiskIndexBuilder extends AbstractIndexBuilder {
 	protected Index getCoreIndex() throws IOException {
 		// Creamos el indice con la version en RAM ya cargada,
 		// Sin tener que leer del disco nuevamente
-		return new DiskIndex(indexPath, this.paths, this.positions, false);
+		return new DiskIndex(indexPath, this.paths, this.postings, false);
 	}
 
 }

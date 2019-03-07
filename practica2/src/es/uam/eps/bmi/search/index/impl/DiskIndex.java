@@ -33,12 +33,13 @@ public class DiskIndex extends AbstractIndex {
 	 * @param postings Diccionario con listas de postings indexadas por termino
 	 * @throws FileNotFoundException
 	 */
-	public DiskIndex(String indexPath, ArrayList<String> paths, HashMap<String, PostingsListImpl> postings)
+	public DiskIndex(String indexPath, ArrayList<String> paths, HashMap<String, PostingsListImpl> postings, boolean load_norms_flag)
 			throws FileNotFoundException {
 		this.paths = paths;
 		this.postings = postings;
 
-		loadNorms(indexPath);
+		if(load_norms_flag)
+			loadNorms(indexPath);
 	}
 
 	@SuppressWarnings("unchecked")

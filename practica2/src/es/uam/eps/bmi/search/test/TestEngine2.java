@@ -3,8 +3,6 @@ package es.uam.eps.bmi.search.test;
 import es.uam.eps.bmi.search.SearchEngine;
 import es.uam.eps.bmi.search.index.Index;
 import es.uam.eps.bmi.search.index.NoIndexException;
-//import es.uam.eps.bmi.search.index.impl.DiskIndex;
-//import es.uam.eps.bmi.search.index.impl.DiskIndexBuilder;
 import es.uam.eps.bmi.search.index.impl.SerializedRAMIndex;
 import es.uam.eps.bmi.search.index.impl.DiskIndexBuilder;
 import es.uam.eps.bmi.search.index.lucene.LuceneForwardIndex;
@@ -38,8 +36,8 @@ public class TestEngine2 {
         // Ã�ndices: pruebas de correciÃ³n //
         ///////////////////////////////////
         
-        String collPath = "collections/urls.txt";
-        String baseIndexPath = "index/urls";
+        // String collPath = "collections/urls.txt";
+        // String baseIndexPath = "index/urls";
         /*
         // ConstrucciÃ³n
         new LuceneForwardIndexBuilder().build(collPath, baseIndexPath + "/lucene/forward");
