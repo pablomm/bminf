@@ -24,7 +24,7 @@ public class RankingImpl implements SearchRanking {
 		this.cutoff = cutoff;
 		
 		// Heap con orden ascendente
-		heap = new PriorityQueue<RankingDocImpl>(cutoff+1);
+		heap = new PriorityQueue<RankingDocImpl>(cutoff+1, Collections.reverseOrder());
 
 	}
 
@@ -54,7 +54,6 @@ public class RankingImpl implements SearchRanking {
 	public void add(int docId, double score) {
 		
 		heap.add(new RankingDocImpl(index, score, docId));
-		System.out.println(score);
 		
 		if (heap.size() > cutoff) {
 			heap.poll();

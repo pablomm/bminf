@@ -33,8 +33,6 @@ public class SlowVSMEngine extends AbstractVSMEngine {
         for (String qWord : query) {
             long freq = docV.getFreq(qWord);
             if (freq > 0) {
-            	System.out.println("Sumando freq de " + qWord + " " + docID);
-            	
             	s += tfidf(freq, index.getDocFreq(qWord), index.numDocs());}
         }
         return s == 0? Double.NEGATIVE_INFINITY : s;

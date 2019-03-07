@@ -8,19 +8,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import es.uam.eps.bmi.search.index.AbstractIndexBuilder;
 import es.uam.eps.bmi.search.index.Config;
 import es.uam.eps.bmi.search.index.Index;
+import es.uam.eps.bmi.search.index.AbstractIndexBuilder;
 import es.uam.eps.bmi.search.index.structure.Posting;
 import es.uam.eps.bmi.search.index.structure.impl.PostingsListImpl;
 
-/**
- * Constructor del indice en RAM, almacena la lista de paths en el fichero
- * indexPath/Config.PATHS_FILE y el diccionario con postings en el fichero
- * indexPath/Config.INDEX_PATH.
- */
 public class SerializedRAMIndexBuilder extends AbstractIndexBuilder {
-	
+
 	private String indexPath;
 
 	/**
@@ -117,7 +112,7 @@ public class SerializedRAMIndexBuilder extends AbstractIndexBuilder {
 	protected Index getCoreIndex() throws IOException {
 		// Creamos el indice con la version en RAM ya cargada,
 		// Sin tener que leer del disco nuevamente
-		return new SerializedRAMIndex(indexPath, paths, postings);
+		return new SerializedRAMIndex(indexPath, paths, postings, false);
 	}
 
 }
