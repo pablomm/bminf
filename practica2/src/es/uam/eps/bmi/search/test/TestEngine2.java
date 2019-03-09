@@ -4,6 +4,7 @@ import es.uam.eps.bmi.search.SearchEngine;
 import es.uam.eps.bmi.search.index.Index;
 import es.uam.eps.bmi.search.index.NoIndexException;
 import es.uam.eps.bmi.search.index.impl.SerializedRAMIndex;
+import es.uam.eps.bmi.search.index.impl.DiskIndex;
 import es.uam.eps.bmi.search.index.impl.DiskIndexBuilder;
 import es.uam.eps.bmi.search.index.lucene.LuceneForwardIndex;
 import es.uam.eps.bmi.search.index.lucene.LuceneForwardIndexBuilder;
@@ -118,7 +119,7 @@ public class TestEngine2 {
         Timer.time("\tLuceneIndex:\t");
         new DiskIndexBuilder().build(collPath, baseIndexPath + "/ram");
         Timer.time("\tRAMIndex:\t");
-        //new DiskIndexBuilder().build(collPath, baseIndexPath + "/disk");
+        new DiskIndexBuilder().build(collPath, baseIndexPath + "/disk");
         Timer.time("\tDiskIndex:\t");        
 
         Timer.reset("  Load time...");
@@ -128,7 +129,7 @@ public class TestEngine2 {
         Timer.time("\tLuceneIndex:\t");
         new SerializedRAMIndex(baseIndexPath + "/ram");
         Timer.time("\tRAMIndex:\t");
-        //new DiskIndex(baseIndexPath + "/disk");
+        new DiskIndex(baseIndexPath + "/disk");
         Timer.time("\tDiskIndex:\t");        
 
         System.out.println("  Disk space...");

@@ -77,6 +77,7 @@ public class SerializedRAMIndex extends AbstractIndex {
 			this.loadNorms(indexPath);
 
 		} catch (IOException | ClassNotFoundException e) {
+			System.err.println(e.getMessage());
 			throw new NoIndexException(indexPath);
 		}
 	}

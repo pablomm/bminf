@@ -1,9 +1,12 @@
 package es.uam.eps.bmi.search.index.impl;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
-import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -78,7 +81,7 @@ public class DiskIndexBuilder extends AbstractIndexBuilder {
 		positions = new HashMap<String, Long>();
 		
 		// Escritor en el fichero de postings
-		RandomAccessFile access = new RandomAccessFile(new File(Config.POSTINGS_FILE), "w");
+		/*RandomAccessFile access = new RandomAccessFile(new File(indexPath + "/" + Config.POSTINGS_FILE), "rw");
 		
 		// Iteramos sobre el indice en ram
 		for(Entry<String, PostingsListImpl> entry : postings.entrySet()) {
@@ -101,10 +104,30 @@ public class DiskIndexBuilder extends AbstractIndexBuilder {
 				access.writeLong(post.getFreq());
 			}
 		}
-		access.close();
+		access.close();*/
+		// Escritor en el fichero de postings
+		FileOutputStream post_access = new FileOutputStream(indexPath + "/" + Config.POSTINGS_FILE);
+		ObjectOutputStream post_stream = new ObjectOutputStream(post_access);
+		FileChannel post_channel = post_access.getChannel();
+		//FileChannel dict_channel = dict_access.getChannel();
+		
+		// Iteramos sobre el indice en ram
+		for(Entry<String, PostingsListImpl> entry : postings.entrySet()) {
+			String term = entry.getKey();
+			PostingsListImpl post_list = entry.getValue();
+			
+			long offset = post_channel.position();
+			// System.out.println(offset);
+			// Almacenamos el offset asociado a la palabra
+			positions.put(term, offset);
+			
+			// Escribimos la postingslist
+			post_stream.writeObject(post_list);
+		}
+		post_stream.close();
 		
 		// Ahora guardamos en disco (de forma no muy eficiente) (termino, offset)
-		PrintWriter writer = new PrintWriter(new File(Config.DICTIONARY_FILE));
+		PrintWriter writer = new PrintWriter(new File(indexPath + "/" + Config.DICTIONARY_FILE));
 		
 		// Iteramos por diccionario de strings / offsets
 		
@@ -117,10 +140,15 @@ public class DiskIndexBuilder extends AbstractIndexBuilder {
 		writer.close();
 		
 		// Guardamos los paths en disco
-		writer = new PrintWriter(new File(Config.PATHS_FILE));
-		for(String path : paths) {
+		writer = new PrintWriter(new File(indexPath + "/" + Config.PATHS_FILE));
+		
+		// Primero escribimos el número de paths
+		writer.println(paths.size());
+		
+		// El resto de las filas corresponden a cada path
+		for(String path : paths)
 			writer.println(path);
-		}
+		
 		writer.close();
 	}
 
@@ -166,7 +194,6 @@ public class DiskIndexBuilder extends AbstractIndexBuilder {
 	protected Index getCoreIndex() throws IOException {
 		// Creamos el indice con la version en RAM ya cargada,
 		// Sin tener que leer del disco nuevamente
-		return new DiskIndex(indexPath, this.paths, this.postings, false);
+		return new DiskIndex(indexPath, this.positions, true);
 	}
-
 }
