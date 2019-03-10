@@ -1,13 +1,11 @@
 package es.uam.eps.bmi.search.index.impl;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.RandomAccessFile;
 import java.io.StreamCorruptedException;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
@@ -15,6 +13,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.stream.Stream;
 
 import es.uam.eps.bmi.search.index.AbstractIndex;
@@ -35,7 +34,7 @@ public class DiskIndex extends AbstractIndex {
 	 */
 	// private HashMap<String, PostingsListImpl> postings;
 	
-	private HashMap<String, Long> positions = null;
+	// private HashMap<String, Long> positions = null;
 	
 	// private FileInputStream access;
 	
@@ -48,6 +47,11 @@ public class DiskIndex extends AbstractIndex {
 	 * Path del archivo con las postinglists
 	 */
 	private String pathsPath;
+	
+	/**
+	 * Path del archivo con las posiciones dentro de las postingslists
+	 */
+	private String positionsPath;
 	
 	/**
 	 * Número de paths en el fichero
@@ -71,10 +75,12 @@ public class DiskIndex extends AbstractIndex {
 	 * @param postings Diccionario con listas de postings indexadas por termino
 	 * @throws FileNotFoundException
 	 */
-	public DiskIndex(String indexPath, HashMap<String, Long> positions, boolean load_norms_flag)
+	public DiskIndex(String indexPath, boolean load_norms_flag)
 			throws FileNotFoundException {
-		this.positions = positions;
+		//this.positions = positions;
 		postingsPath = indexPath + "/" + Config.POSTINGS_FILE;
+		pathsPath = indexPath + "/" + Config.PATHS_FILE;
+		positionsPath = indexPath + "/" + Config.DICTIONARY_FILE;
 		// access = new FileInputStream(postingsPath);
 		try {
 			if (in!=null) in.close();
@@ -118,12 +124,13 @@ public class DiskIndex extends AbstractIndex {
 			
 			postingsPath = indexPath + "/" + Config.POSTINGS_FILE;
 			pathsPath = indexPath + "/" + Config.PATHS_FILE;
+			positionsPath = indexPath + "/" + Config.DICTIONARY_FILE;
 			// access = new FileInputStream(postingsPath);
 			
 			if (DiskIndex.in!=null) in.close();
 			in=new ObjectInputStream(new FileInputStream(postingsPath));
 			
-			BufferedReader reader = new BufferedReader(new FileReader(indexPath + "/" + Config.PATHS_FILE));
+			BufferedReader reader = new BufferedReader(new FileReader(pathsPath));
 			
 			nPaths = Integer.parseInt(reader.readLine());
 			
@@ -141,10 +148,15 @@ public class DiskIndex extends AbstractIndex {
 
 	@Override
 	public PostingsList getPostings(String term) throws IOException {
-		long offset = positions.get(term);
 		
-		try {
+		String[] entry = null;
+		long offset = 0;
+		
+		try (Stream<String> lines = Files.lines(Paths.get(positionsPath))) {
+			while (!entry[0].equals(term)) 
+				entry = lines.skip(1).findFirst().get().split(" ");
 			
+			offset = Long.parseLong(entry[1]);
 			// Abrimos el fichero y saltamos al byte
 			//FileInputStream access = new FileInputStream(postingsPath);
 			/*if (access.getChannel().position() > offset) {
@@ -182,15 +194,28 @@ public class DiskIndex extends AbstractIndex {
 
 	@Override
 	public Collection<String> getAllTerms() throws IOException {
-		return positions.keySet();
+		ArrayList<String> keys = new ArrayList<String>();
+		
+		try (Stream<String> lines = Files.lines(Paths.get(positionsPath))) {
+			
+				keys.add( lines.skip(1).findFirst().get().split(" ")[0]);
+			
+			//return HashSet.<String[]>of(entry);
+			return new HashSet<String>(keys);
+		}
 	}
 
 	@Override
 	public long getTotalFreq(String term) throws IOException {
 		
-		long offset = positions.get(term);
+		String[] entry = null;
+		long offset = 0;
 		
-		try {
+		try (Stream<String> lines = Files.lines(Paths.get(positionsPath))) {
+			while (!entry[0].equals(term)) 
+				entry = lines.skip(1).findFirst().get().split(" ");
+			
+			offset = Long.parseLong(entry[1]);
 			
 			// Abrimos el fichero y saltamos al byte
 			//FileInputStream access = new FileInputStream(postingsPath);
@@ -230,9 +255,14 @@ public class DiskIndex extends AbstractIndex {
 	@Override
 	public long getDocFreq(String term) throws IOException {
 		
-		long offset = positions.get(term);
+		String[] entry = null;
+		long offset = 0;
 		
-		try {
+		try (Stream<String> lines = Files.lines(Paths.get(positionsPath))) {
+			while (!entry[0].equals(term)) 
+				entry = lines.skip(1).findFirst().get().split(" ");
+			
+			offset = Long.parseLong(entry[1]);
 			
 			// Abrimos el fichero y saltamos al byte
 			//FileInputStream access = new FileInputStream(postingsPath);

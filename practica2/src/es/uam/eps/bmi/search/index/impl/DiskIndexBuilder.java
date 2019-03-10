@@ -129,8 +129,9 @@ public class DiskIndexBuilder extends AbstractIndexBuilder {
 		// Ahora guardamos en disco (de forma no muy eficiente) (termino, offset)
 		PrintWriter writer = new PrintWriter(new File(indexPath + "/" + Config.DICTIONARY_FILE));
 		
+		// Imprimimos la longitud del diccionario
+		writer.println(positions.size());
 		// Iteramos por diccionario de strings / offsets
-		
 		for(Entry<String, Long> entry : positions.entrySet()) {
 			String term = entry.getKey();
 			Long offset = entry.getValue();
@@ -194,6 +195,6 @@ public class DiskIndexBuilder extends AbstractIndexBuilder {
 	protected Index getCoreIndex() throws IOException {
 		// Creamos el indice con la version en RAM ya cargada,
 		// Sin tener que leer del disco nuevamente
-		return new DiskIndex(indexPath, this.positions, true);
+		return new DiskIndex(indexPath, false);
 	}
 }
