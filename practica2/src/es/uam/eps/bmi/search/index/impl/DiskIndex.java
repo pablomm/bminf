@@ -72,6 +72,16 @@ public class DiskIndex extends AbstractIndex {
 	 * @throws NoIndexException
 	 */
 	public DiskIndex(String indexPath) throws NoIndexException {
+		
+		this(indexPath, true);
+	}
+	/**
+	 * Carga un indice en disco, con opcion a cargar o no las normas
+	 * 
+	 * @param indexPath
+	 * @throws NoIndexException
+	 */
+	public DiskIndex(String indexPath, boolean load_norms) throws NoIndexException {
 
 		this.indexPath = indexPath;
 
@@ -107,8 +117,10 @@ public class DiskIndex extends AbstractIndex {
 
 		// Leemos linea a linea los paths
 		BufferedReader reader = new BufferedReader(new FileReader(pathFile));
+		
+		// Descartamos la primera linea que contiene el numero de posiciones
 		String line = reader.readLine();
-
+		
 		// Cada linea contiene un path, ordenados por docID
 		while (line != null) {
 			this.paths.add(line);
@@ -124,7 +136,10 @@ public class DiskIndex extends AbstractIndex {
 
 		// Leemos linea a linea las posiciones
 		BufferedReader reader = new BufferedReader(new FileReader(positionsPath));
+		// Desechamos la primera linea que contiene el numero de palabras
 		String line = reader.readLine();
+		
+		line = reader.readLine();
 
 		// Cada linea contiene termino offset
 		while (line != null) {
