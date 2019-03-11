@@ -57,6 +57,7 @@ public abstract class AbstractIndexBuilder implements IndexBuilder {
     protected void indexURLs(File f) throws IOException {
         Scanner in = new Scanner(f);
         while (in.hasNext()) indexHTML(in.nextLine());
+        in.close();
     }
 
     protected void indexHTML(InputStream docStream, String path) throws IOException {
@@ -64,7 +65,12 @@ public abstract class AbstractIndexBuilder implements IndexBuilder {
     }
     
     protected void indexHTML(String url) throws IOException {
-        indexText(Jsoup.parse(new URL(url), 10000).text(), url); // 10 seconds timeout
+    	try {
+    		indexText(Jsoup.parse(new URL(url), 10000).text(), url); // 10 seconds timeout
+    	} catch (IOException e) {
+    		System.err.println("Error parseando " + url);
+    		System.err.println(e);
+    	}
     }
 
      protected void indexHTML(String content, String path) throws IOException {

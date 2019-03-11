@@ -4,7 +4,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -38,12 +37,12 @@ public class SerializedRAMIndex extends AbstractIndex {
 	 * @param postings Diccionario con listas de postings indexadas por termino
 	 * @throws FileNotFoundException
 	 */
-	public SerializedRAMIndex(String indexPath, ArrayList<String> paths, HashMap<String, PostingsListImpl> postings, boolean load_norms_flag)
-			throws FileNotFoundException {
+	public SerializedRAMIndex(String indexPath, ArrayList<String> paths, HashMap<String, PostingsListImpl> postings,
+			boolean load_norms_flag) throws FileNotFoundException {
 		this.paths = paths;
 		this.postings = postings;
 
-		if(load_norms_flag)
+		if (load_norms_flag)
 			loadNorms(indexPath);
 	}
 
@@ -77,35 +76,60 @@ public class SerializedRAMIndex extends AbstractIndex {
 			this.loadNorms(indexPath);
 
 		} catch (IOException | ClassNotFoundException e) {
-			System.err.println(e.getMessage());
+			
 			throw new NoIndexException(indexPath);
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see es.uam.eps.bmi.search.index.Index#numDocs()
+	 */
 	@Override
 	public int numDocs() {
 
 		return paths.size();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see es.uam.eps.bmi.search.index.Index#getPostings(java.lang.String)
+	 */
 	@Override
 	public PostingsList getPostings(String term) throws IOException {
 
 		return this.postings.get(term);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see es.uam.eps.bmi.search.index.Index#getAllTerms()
+	 */
 	@Override
 	public Collection<String> getAllTerms() throws IOException {
 
 		return this.postings.keySet();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see es.uam.eps.bmi.search.index.Index#getTotalFreq(java.lang.String)
+	 */
 	@Override
 	public long getTotalFreq(String term) throws IOException {
 
 		return this.postings.get(term).getTotalFreq();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see es.uam.eps.bmi.search.index.Index#getDocFreq(java.lang.String)
+	 */
 	@Override
 	public long getDocFreq(String term) throws IOException {
 
@@ -113,6 +137,11 @@ public class SerializedRAMIndex extends AbstractIndex {
 		return this.postings.get(term).size();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see es.uam.eps.bmi.search.index.Index#getDocPath(int)
+	 */
 	@Override
 	public String getDocPath(int docID) throws IOException {
 		return paths.get(docID);

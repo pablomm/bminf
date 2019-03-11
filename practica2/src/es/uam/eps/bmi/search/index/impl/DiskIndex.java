@@ -1,21 +1,14 @@
 package es.uam.eps.bmi.search.index.impl;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.StreamCorruptedException;
-import java.nio.channels.FileChannel;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.stream.Stream;
-
 import es.uam.eps.bmi.search.index.AbstractIndex;
 import es.uam.eps.bmi.search.index.Config;
 import es.uam.eps.bmi.search.index.NoIndexException;
@@ -27,288 +20,180 @@ public class DiskIndex extends AbstractIndex {
 	/**
 	 * Lista de paths de los documentos indexados por ID
 	 */
-	//private ArrayList<String> paths;
+	private ArrayList<String> paths = new ArrayList<String>();
 
 	/**
 	 * Diccionario con listas de postings indexadas por termino
 	 */
-	// private HashMap<String, PostingsListImpl> postings;
-	
-	// private HashMap<String, Long> positions = null;
-	
-	// private FileInputStream access;
-	
-	/**
-	 * Path del archivo con las postinglists
-	 */
-	private String postingsPath;
-	
-	/**
-	 * Path del archivo con las postinglists
-	 */
-	private String pathsPath;
-	
-	/**
-	 * Path del archivo con las posiciones dentro de las postingslists
-	 */
-	private String positionsPath;
-	
-	/**
-	 * Número de paths en el fichero
-	 */
-	private final int nPaths;
-	
-	/**
-	 * Lector estático para no tener que reabrir streams constantemente. Lo usaremos para leer los postings
-	 */
-	private static ObjectInputStream in = null;
-	
-	/**
-	 * FileChannel asociado a in. Sin él no podríamos averiguar la posición actual en el fichero
-	 */
-	private static FileChannel channel = null;
+	private HashMap<String, Long> positions = new HashMap<String, Long>();
 
 	/**
-	 * Version para cargar el indice sin leer de disco por eficiencia
+	 * Puntero de acceso al fichero de postings
+	 */
+	private RandomAccessFile access;
+
+	private String indexPath;
+
+	/**
+	 * Carga un indice en disco a partir del mapa de posiciones, el array de paths
+	 * Constructor llamado en getIndexCore por eficiencia para evitar cargar
+	 * duplicados
 	 * 
-	 * @param paths    Lista de paths de los documentos indexados por ID
-	 * @param postings Diccionario con listas de postings indexadas por termino
-	 * @throws FileNotFoundException
+	 * @param indexPath
+	 * @param positions
+	 * @param paths
+	 * @param load_norms
+	 * @throws NoIndexException
 	 */
-	public DiskIndex(String indexPath, boolean load_norms_flag)
-			throws FileNotFoundException {
-		//this.positions = positions;
-		postingsPath = indexPath + "/" + Config.POSTINGS_FILE;
-		pathsPath = indexPath + "/" + Config.PATHS_FILE;
-		positionsPath = indexPath + "/" + Config.DICTIONARY_FILE;
-		// access = new FileInputStream(postingsPath);
+	public DiskIndex(String indexPath, HashMap<String, Long> positions, ArrayList<String> paths, boolean load_norms)
+			throws NoIndexException {
+
+		this.paths = paths;
+		this.positions = positions;
+		this.indexPath = indexPath;
 		try {
-			if (in!=null) in.close();
-		
-			FileInputStream stream = new FileInputStream(postingsPath);
-			in = new ObjectInputStream(stream);
-			channel = stream.getChannel();
-			
-			BufferedReader reader = new BufferedReader(new FileReader(indexPath + "/" + Config.PATHS_FILE));
-			
-			nPaths = Integer.parseInt(reader.readLine());
-			
-			reader.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			throw new FileNotFoundException();
-		}
 
-		if(load_norms_flag)
-			loadNorms(indexPath);
-	}
+			this.access = new RandomAccessFile(new File(indexPath + "/" + Config.POSTINGS_FILE), "r");
 
-	//@SuppressWarnings("unchecked")
-	public DiskIndex(String indexPath) throws NoIndexException {
+			if (load_norms) {
+				this.loadNorms(indexPath);
+			}
 
-		// Leemos el diccionario con los postings
-		// FileInputStream file;
-		try {
-			/*file = new FileInputStream(indexPath + "/" + Config.POSTINGS_FILE);
-
-			ObjectInputStream in = new ObjectInputStream(file);
-
-			// Leemos el diccionario de postings
-			this.postings = (HashMap<String, PostingsListImpl>) in.readObject();
-
-			in.close();
-			file.close();*/
-			// access = new RandomAccessFile(new File(indexPath + "/" + Config.POSTINGS_FILE), "r");
-			
-			
-			postingsPath = indexPath + "/" + Config.POSTINGS_FILE;
-			pathsPath = indexPath + "/" + Config.PATHS_FILE;
-			positionsPath = indexPath + "/" + Config.DICTIONARY_FILE;
-			// access = new FileInputStream(postingsPath);
-			
-			if (DiskIndex.in!=null) in.close();
-			in=new ObjectInputStream(new FileInputStream(postingsPath));
-			
-			BufferedReader reader = new BufferedReader(new FileReader(pathsPath));
-			
-			nPaths = Integer.parseInt(reader.readLine());
-			
-			reader.close();
-		} catch (IOException e) {
-			System.err.println(e.getMessage());
+		} catch (FileNotFoundException e) {
+			// Excepcion en caso de fallo al leer el indice
 			throw new NoIndexException(indexPath);
 		}
 	}
 
+	/**
+	 * Carga un indice en disco
+	 * 
+	 * @param indexPath
+	 * @throws NoIndexException
+	 */
+	public DiskIndex(String indexPath) throws NoIndexException {
+
+		this.indexPath = indexPath;
+
+		try {
+			// Cargamos los paths
+			loadPaths();
+
+			// Cargamos el diccionario de posiciones
+			loadPositions();
+
+			// Abrimos el puntero a los postings
+			this.access = new RandomAccessFile(new File(indexPath + "/" + Config.POSTINGS_FILE), "r");
+
+			// Cargamos las normas
+			this.loadNorms(this.indexPath);
+
+		} catch (IOException e) {
+			// Excepcion en caso de fallo al leer el indice
+			throw new NoIndexException(indexPath);
+		}
+
+	}
+
+	/**
+	 * Lee el fichero con los paths
+	 * 
+	 * @throws IOException
+	 */
+	private void loadPaths() throws IOException {
+
+		// Ruta del fichero de paths
+		String pathFile = this.indexPath + "/" + Config.PATHS_FILE;
+
+		// Leemos linea a linea los paths
+		BufferedReader reader = new BufferedReader(new FileReader(pathFile));
+		String line = reader.readLine();
+
+		// Cada linea contiene un path, ordenados por docID
+		while (line != null) {
+			this.paths.add(line);
+			line = reader.readLine();
+		}
+
+		reader.close();
+	}
+
+	private void loadPositions() throws IOException {
+
+		String positionsPath = this.indexPath + "/" + Config.DICTIONARY_FILE;
+
+		// Leemos linea a linea las posiciones
+		BufferedReader reader = new BufferedReader(new FileReader(positionsPath));
+		String line = reader.readLine();
+
+		// Cada linea contiene termino offset
+		while (line != null) {
+
+			String[] spliteado = line.split(" ");
+
+			// Incluimos (termino, offset)
+			this.positions.put(spliteado[0], Long.parseLong(spliteado[1]));
+			line = reader.readLine();
+
+		}
+		reader.close();
+
+	}
+
 	@Override
 	public int numDocs() {
-		return nPaths;
+		return this.paths.size();
 	}
 
 	@Override
 	public PostingsList getPostings(String term) throws IOException {
-		
-		String[] entry = null;
-		long offset = 0;
-		
-		try (Stream<String> lines = Files.lines(Paths.get(positionsPath))) {
-			while (!entry[0].equals(term)) 
-				entry = lines.skip(1).findFirst().get().split(" ");
-			
-			offset = Long.parseLong(entry[1]);
-			// Abrimos el fichero y saltamos al byte
-			//FileInputStream access = new FileInputStream(postingsPath);
-			/*if (access.getChannel().position() > offset) {
-				access.close();
-				access = new FileInputStream(postingsPath);
-			} else offset -= access.getChannel().position();*/
-			// Caso particular, el primer elemento posee el offset de la CABECERA de los datos, y no leerá bien
-			//if (offset!=4)
-			//	access.skip(offset);
-			
-			// Si estamos leyendo más allá de nuestra posición actual reiniciamos in y channel
-			if (channel.position() > offset) {
-				in.close();
-				FileInputStream stream = new FileInputStream(postingsPath);
-				in = new ObjectInputStream(stream);
-				channel = stream.getChannel();
-				// En caso contrario desplazamos el buffer para que saltemos a la posición deseada
-			} else offset -= channel.position();
-			
-			// Leemos la PostingsList en la posición y la retornamos
-			//ObjectInputStream in = new ObjectInputStream(access);
-			in.skip(offset);
-			
-			PostingsListImpl list = (PostingsListImpl) in.readObject();
-			
-			//in.close();
 
-			return list;
-		} catch (StreamCorruptedException | ClassNotFoundException e) {
-			System.out.println(term + " : " + String.valueOf(offset));
-			e.printStackTrace();
-			throw new IOException("PostingsList corrupted or bad formatted");
+		// Obtenemos offset del termino
+		long offset = this.positions.get(term);
+
+		this.access.seek(offset);
+
+		PostingsListImpl lista = new PostingsListImpl();
+
+		// Leemos el numero de postings de la lista
+		int numero_postings = this.access.readInt();
+
+		for (int i = 0; i < numero_postings; i++) {
+
+			lista.add(this.access.readInt(), this.access.readLong());
+
 		}
+
+		return lista;
+
 	}
 
 	@Override
 	public Collection<String> getAllTerms() throws IOException {
-		ArrayList<String> keys = new ArrayList<String>();
-		
-		try (Stream<String> lines = Files.lines(Paths.get(positionsPath))) {
-			
-				keys.add( lines.skip(1).findFirst().get().split(" ")[0]);
-			
-			//return HashSet.<String[]>of(entry);
-			return new HashSet<String>(keys);
-		}
+		return this.positions.keySet();
 	}
 
 	@Override
 	public long getTotalFreq(String term) throws IOException {
-		
-		String[] entry = null;
-		long offset = 0;
-		
-		try (Stream<String> lines = Files.lines(Paths.get(positionsPath))) {
-			while (!entry[0].equals(term)) 
-				entry = lines.skip(1).findFirst().get().split(" ");
-			
-			offset = Long.parseLong(entry[1]);
-			
-			// Abrimos el fichero y saltamos al byte
-			//FileInputStream access = new FileInputStream(postingsPath);
-			/*if (access.getChannel().position() > offset) {
-				access.close();
-				access = new FileInputStream(postingsPath);
-			} else offset -= access.getChannel().position();*/
-			// Caso particular, el primer elemento posee el offset de la CABECERA de los datos, y no leerá bien
-			//if (offset!=4)
-			//	access.skip(offset);
-			
-			// Si estamos leyendo más allá de nuestra posición actual reiniciamos in y channel
-			if (channel.position() > offset) {
-				in.close();
-				FileInputStream stream = new FileInputStream(postingsPath);
-				in = new ObjectInputStream(stream);
-				channel = stream.getChannel();
-				// En caso contrario desplazamos el buffer para que saltemos a la posición deseada
-			} else offset -= channel.position();
-			
-			// Leemos la PostingsList en la posición y la retornamos
-			//ObjectInputStream in = new ObjectInputStream(access);
-			in.skip(offset);
-			
-			PostingsListImpl list = (PostingsListImpl) in.readObject();
-			
-			//in.close();
 
-			return list.getTotalFreq();
-		} catch (StreamCorruptedException | ClassNotFoundException e) {
-			System.out.println(term + " : " + String.valueOf(offset));
-			e.printStackTrace();
-			throw new IOException("PostingsList corrupted or bad formatted");
-		}
+		return ((PostingsListImpl) this.getPostings(term)).getTotalFreq();
 	}
 
 	@Override
 	public long getDocFreq(String term) throws IOException {
-		
-		String[] entry = null;
-		long offset = 0;
-		
-		try (Stream<String> lines = Files.lines(Paths.get(positionsPath))) {
-			while (!entry[0].equals(term)) 
-				entry = lines.skip(1).findFirst().get().split(" ");
-			
-			offset = Long.parseLong(entry[1]);
-			
-			// Abrimos el fichero y saltamos al byte
-			//FileInputStream access = new FileInputStream(postingsPath);
-			/*if (access.getChannel().position() > offset) {
-				access.close();
-				access = new FileInputStream(postingsPath);
-			} else offset -= access.getChannel().position();*/
-			// Caso particular, el primer elemento posee el offset de la CABECERA de los datos, y no leerá bien
-			//if (offset!=4)
-			//	access.skip(offset);
-			
-			// Si estamos leyendo más allá de nuestra posición actual reiniciamos in y channel
-			if (channel.position() > offset) {
-				in.close();
-				FileInputStream stream = new FileInputStream(postingsPath);
-				in = new ObjectInputStream(stream);
-				channel = stream.getChannel();
-				// En caso contrario desplazamos el buffer para que saltemos a la posición deseada
-			} else offset -= channel.position();
-			
-			// Leemos la PostingsList en la posición y la retornamos
-			//ObjectInputStream in = new ObjectInputStream(access);
-			in.skip(offset);
-			
-			PostingsListImpl list = (PostingsListImpl) in.readObject();
-			
-			//in.close();
+		// Obtenemos offset del termino
+		long offset = this.positions.get(term);
 
-			// La frecuencia de documentos es la longitud de la lista de postings
-			return list.size();
-		} catch (StreamCorruptedException | ClassNotFoundException e) {
-			System.out.println(term + " : " + String.valueOf(offset));
-			e.printStackTrace();
-			throw new IOException("PostingsList corrupted or bad formatted");
-		}
+		this.access.seek(offset);
+
+		// Leemos el numero de postings de la lista
+		int numero_postings = this.access.readInt();
+
+		return numero_postings;
 	}
 
 	@Override
 	public String getDocPath(int docID) throws IOException {
-		
-		String line = null;
-		
-		try (Stream<String> lines = Files.lines(Paths.get(pathsPath))) {
-		    line = lines.skip(docID+1).findFirst().get();
-		}
-		
-		return line;
+		return this.paths.get(docID);
 	}
 }
