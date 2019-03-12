@@ -2,6 +2,7 @@ package es.uam.eps.bmi.search.index.structure.impl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -72,6 +73,20 @@ public class PostingsListImpl implements PostingsList, Serializable {
 	 */
 	public void add(int docId, long freq) {
 		add(new Posting(docId, freq));
+	}
+	
+	
+	public List<Posting> getCoreList(){
+		return this.postingList;
+	}
+	
+	
+	
+	public void merge(PostingsListImpl o) {
+		
+		this.termTotalFreq += o.getTotalFreq();
+		this.postingList.addAll(o.getCoreList());
+		Collections.sort(this.postingList);
 	}
 
 }
