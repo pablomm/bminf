@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import es.uam.eps.bmi.search.AbstractEngine;
 import es.uam.eps.bmi.search.SearchEngine;
 import es.uam.eps.bmi.search.index.AbstractIndex;
 import es.uam.eps.bmi.search.index.DocumentMap;
@@ -15,24 +16,22 @@ import es.uam.eps.bmi.search.index.lucene.LucenePositionalIndex;
 import es.uam.eps.bmi.search.ranking.SearchRanking;
 import es.uam.eps.bmi.search.ranking.impl.RankingImpl;
 
-public class ProximityEngine implements SearchEngine {
+public class ProximityEngine extends AbstractEngine {
 	
-	private AbstractIndex map;
-	
-	public ProximityEngine(AbstractIndex map) {
-		this.map=map;
+	public ProximityEngine(AbstractIndex index) {
+		super(index);
 	}
 	
-	/*public ProximityEngine(PositionalIndex map) {
-		this.map=map;
+	/*public ProximityEngine(PositionalIndex index) {
+		this.index=index;
 	}*/
 
 	@Override
 	public SearchRanking search(String query, int cutoff) throws IOException {
-		RankingImpl ranking = new RankingImpl(map, cutoff);
+		RankingImpl ranking = new RankingImpl(index, cutoff);
 		double score=0.0;
-        for (int doc = 0; doc < map.numDocs(); doc++) {
-            //ranking.add(doc, map.getValue(doc));
+        for (int doc = 0; doc < index.numDocs(); doc++) {
+            //ranking.add(doc, index.getValue(doc));
         	if (query.charAt(0)=='"' && query.charAt(query.length()-1)=='"')
         		score=M_d_q_literal(doc, query.replaceAll("\"", ""));
         	else score=M_d_q(doc, query.split(" "));
@@ -46,7 +45,7 @@ public class ProximityEngine implements SearchEngine {
 	public double M_d_q (int doc, String[] query) throws IOException {
 		
 		// The terms in the query must be unique
-		String path = map.getDocPath(doc);
+		String path = index.getDocPath(doc);
 		int position=0;
 		double score=0;
 		
@@ -60,7 +59,7 @@ public class ProximityEngine implements SearchEngine {
 		// We transform the input in a list with all the words, spliting by punctuation marks and whitespaces
 		ArrayList<String> str = new ArrayList<String>(Arrays
 				.asList((new String(stream, Charset.defaultCharset()))
-				.replaceAll("\\s+(?=\\p{Punct})", "").split("[\\p{Punct}\\s]+")) );
+				.replaceAll("\\s+(?=\\p{Punct})", "").toLowerCase().split("[\\p{Punct}\\s]+")) );
 		
 		
 		// Search all next appearance of all the terms in the query and keep trace of their positions
@@ -113,7 +112,7 @@ public class ProximityEngine implements SearchEngine {
 				
 				if (positions[position_aux]>positions[last]) last=position_aux;
 			}
-			score+=1.0/(positions[last]-positions[first]);
+			score+=1.0/(positions[last]-positions[first]-Math.sqrt(query.length)+2);
 			positions[first]=-1;
 			first=second;
 			position=positions[first];
@@ -127,7 +126,7 @@ public class ProximityEngine implements SearchEngine {
 	
 	public double M_d_q_literal (int doc, String query) throws IOException {
 		
-		String path = map.getDocPath(doc);
+		String path = index.getDocPath(doc);
 		double score=0;
 		
 		// Create a stream with the entire file
@@ -153,8 +152,8 @@ public class ProximityEngine implements SearchEngine {
 		return -1;
 	}
 
-	@Override
-	public DocumentMap getDocMap() {
-		return map;
-	}
+	/*@Override
+	public DocumentMap getDocindex() {
+		return index;
+	}*/
 }

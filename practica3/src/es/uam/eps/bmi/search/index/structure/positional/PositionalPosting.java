@@ -19,4 +19,8 @@ public class PositionalPosting extends Posting implements Iterable<Integer> {
     public Iterator<Integer> iterator() {
         return new PositionsIterator(positions);
     }
+    
+    public List<Integer> getPositions() {
+    	return positions;
+    }
 }
