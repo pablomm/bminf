@@ -60,7 +60,8 @@ public class LuceneIndex extends AbstractIndex {
     
     public PostingsList getPostings(String term) throws IOException {
         TermsEnum terms = MultiFields.getFields(index).terms("content").iterator();
-        terms.seekExact(new BytesRef(term));
-        return new LucenePostingsList(terms.postings(null), terms.docFreq());
+        if(terms.seekExact(new BytesRef(term)))
+            return new LucenePostingsList(terms.postings(null), terms.docFreq());
+        return new LucenePostingsList(null, 0);
     }
 }

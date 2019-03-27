@@ -20,7 +20,8 @@ public class LucenePositionalIndex extends LuceneIndex {
 
     public PostingsList getPostings(String term) throws IOException {
         TermsEnum terms = MultiFields.getFields(index).terms("content").iterator();
-        terms.seekExact(new BytesRef(term));
-        return new LucenePositionalPostingsList(terms.postings(null), terms.postings(null, PostingsEnum.ALL), terms.docFreq());
+        if(terms.seekExact(new BytesRef(term)))
+            return new LucenePositionalPostingsList(terms.postings(null), terms.postings(null, PostingsEnum.ALL), terms.docFreq());
+        return new LucenePositionalPostingsList(null, null, 0);
     }
 }

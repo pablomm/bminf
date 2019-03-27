@@ -20,9 +20,8 @@ public class StaticEngine implements SearchEngine {
 
     public SearchRanking search(String query, int cutoff) throws IOException {
         RankingImpl ranking = new RankingImpl(map, cutoff);
-        for (int doc = 0; doc < map.numDocs(); doc++) {
+        for (int doc = 0; doc < map.numDocs(); doc++) 
             ranking.add(doc, map.getValue(doc));
-        }
         return ranking;
     }
 

@@ -3,8 +3,6 @@ package es.uam.eps.bmi.search.index.structure.lucene;
 import es.uam.eps.bmi.search.index.structure.Posting;
 import es.uam.eps.bmi.search.index.structure.PostingsListIterator;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.lucene.index.PostingsEnum;
 import org.apache.lucene.search.DocIdSetIterator;
 
@@ -18,7 +16,8 @@ public class LucenePostingsIterator implements PostingsListIterator {
     
     public LucenePostingsIterator(PostingsEnum p) throws IOException {
         postings = p;
-        currentDoc = postings.nextDoc();
+        if (p == null) currentDoc = DocIdSetIterator.NO_MORE_DOCS;
+        else currentDoc = postings.nextDoc();
     }
     
     public boolean hasNext() {

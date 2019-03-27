@@ -27,7 +27,7 @@ public class DiskHashDictionary implements Dictionary {
     public DiskHashDictionary(String path) {
         indexFolder = path;
         termPostings = new TreeMap<String,Long>();
-    }
+    }    
 
     public PostingsList getPostings(String term) throws IOException {
         EditablePostingsList postings = new EditablePostingsList();
