@@ -23,3 +23,6 @@ res/
 hs_err_pid*
 /.metadata/
 .classpath
+
+
+index/
