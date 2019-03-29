@@ -67,11 +67,19 @@ public abstract class AbstractIndexBuilder implements IndexBuilder {
     }
 
     protected void indexHTML(InputStream docStream, String path) throws IOException {
+
         indexText(Jsoup.parse(docStream, StandardCharsets.UTF_8.name(), path).text(), path);
+
     }
     
     protected void indexHTML(String url) throws IOException {
-        indexText(Jsoup.parse(new URL(url), 10000).text(), url); // 10 seconds timeout
+    	// !!! Modificacion del codigo proporcionado
+    	try {
+    		indexText(Jsoup.parse(new URL(url), 10000).text(), url); // 10 seconds timeout
+    	} catch (IOException e) {
+    		System.out.println("Error al indexar " + url + " " + e);
+    		
+    	}
     }
 
      public void indexHTML(String content, String path) throws IOException {
