@@ -1,7 +1,8 @@
 package es.uam.eps.bmi.search.index;
 
-import es.uam.eps.bmi.search.index.freq.FreqVector;
 import java.io.IOException;
+
+import es.uam.eps.bmi.search.index.freq.FreqVector;
 
 /**
  *

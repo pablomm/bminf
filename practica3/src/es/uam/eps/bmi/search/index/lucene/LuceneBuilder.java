@@ -1,10 +1,8 @@
 package es.uam.eps.bmi.search.index.lucene;
 
-import es.uam.eps.bmi.search.index.AbstractIndexBuilder;
-import es.uam.eps.bmi.search.index.Index;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -15,6 +13,9 @@ import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.FSDirectory;
+
+import es.uam.eps.bmi.search.index.AbstractIndexBuilder;
+import es.uam.eps.bmi.search.index.Index;
 
 /**
  *

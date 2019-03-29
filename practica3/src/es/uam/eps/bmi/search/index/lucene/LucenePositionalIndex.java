@@ -1,12 +1,14 @@
 package es.uam.eps.bmi.search.index.lucene;
 
-import es.uam.eps.bmi.search.index.structure.PostingsList;
-import es.uam.eps.bmi.search.index.structure.positional.lucene.LucenePositionalPostingsList;
 import java.io.IOException;
+
 import org.apache.lucene.index.MultiFields;
 import org.apache.lucene.index.PostingsEnum;
 import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.util.BytesRef;
+
+import es.uam.eps.bmi.search.index.structure.PostingsList;
+import es.uam.eps.bmi.search.index.structure.positional.lucene.LucenePositionalPostingsList;
 
 /**
  *

@@ -1,11 +1,13 @@
 package es.uam.eps.bmi.search.index.freq.lucene;
 
-import es.uam.eps.bmi.search.index.freq.FreqVectorIterator;
-import es.uam.eps.bmi.search.index.freq.TermFreq;
 import java.io.IOException;
+
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.util.BytesRef;
+
+import es.uam.eps.bmi.search.index.freq.FreqVectorIterator;
+import es.uam.eps.bmi.search.index.freq.TermFreq;
 
 /**
  *

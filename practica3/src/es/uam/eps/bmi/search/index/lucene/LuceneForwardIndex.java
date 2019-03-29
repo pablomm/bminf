@@ -1,9 +1,10 @@
 package es.uam.eps.bmi.search.index.lucene;
 
+import java.io.IOException;
+
 import es.uam.eps.bmi.search.index.ForwardIndex;
 import es.uam.eps.bmi.search.index.freq.FreqVector;
 import es.uam.eps.bmi.search.index.freq.lucene.LuceneFreqVector;
-import java.io.IOException;
 
 /**
  *

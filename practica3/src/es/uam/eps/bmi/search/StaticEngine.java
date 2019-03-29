@@ -1,10 +1,11 @@
 package es.uam.eps.bmi.search;
 
+import java.io.IOException;
+
 import es.uam.eps.bmi.search.index.DocumentFeatureMap;
 import es.uam.eps.bmi.search.index.DocumentMap;
 import es.uam.eps.bmi.search.ranking.SearchRanking;
 import es.uam.eps.bmi.search.ranking.impl.RankingImpl;
-import java.io.IOException;
 
 /**
  *

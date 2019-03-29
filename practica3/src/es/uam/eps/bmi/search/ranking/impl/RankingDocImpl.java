@@ -1,8 +1,9 @@
 package es.uam.eps.bmi.search.ranking.impl;
 
+import java.io.IOException;
+
 import es.uam.eps.bmi.search.index.DocumentMap;
 import es.uam.eps.bmi.search.ranking.SearchRankingDoc;
-import java.io.IOException;
 
 /**
  *

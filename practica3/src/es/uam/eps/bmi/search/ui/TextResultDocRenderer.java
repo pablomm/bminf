@@ -1,8 +1,9 @@
 package es.uam.eps.bmi.search.ui;
 
-import es.uam.eps.bmi.search.ranking.SearchRankingDoc;
 import java.io.File;
 import java.io.IOException;
+
+import es.uam.eps.bmi.search.ranking.SearchRankingDoc;
 
 /**
  *

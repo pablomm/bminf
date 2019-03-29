@@ -1,12 +1,5 @@
 package es.uam.eps.bmi.search.ui;
 
-import es.uam.eps.bmi.search.SearchEngine;
-import es.uam.eps.bmi.search.index.Index;
-import es.uam.eps.bmi.search.index.IndexBuilder;
-import es.uam.eps.bmi.search.index.NoIndexException;
-import es.uam.eps.bmi.search.index.lucene.LuceneIndex;
-import es.uam.eps.bmi.search.index.lucene.LuceneBuilder;
-import es.uam.eps.bmi.search.vsm.DocBasedVSMEngine;
 import java.awt.Container;
 import java.awt.Desktop;
 import java.awt.event.ActionEvent;
@@ -14,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
@@ -23,6 +17,14 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
+
+import es.uam.eps.bmi.search.SearchEngine;
+import es.uam.eps.bmi.search.index.Index;
+import es.uam.eps.bmi.search.index.IndexBuilder;
+import es.uam.eps.bmi.search.index.NoIndexException;
+import es.uam.eps.bmi.search.index.lucene.LuceneBuilder;
+import es.uam.eps.bmi.search.index.lucene.LuceneIndex;
+import es.uam.eps.bmi.search.vsm.DocBasedVSMEngine;
 
 /**
  *

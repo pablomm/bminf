@@ -1,8 +1,10 @@
 package es.uam.eps.bmi.search.index.freq.lucene;
 
-import es.uam.eps.bmi.search.index.freq.TermFreq;
 import java.io.IOException;
+
 import org.apache.lucene.index.TermsEnum;
+
+import es.uam.eps.bmi.search.index.freq.TermFreq;
 
 /**
  *

@@ -1,9 +1,10 @@
 package es.uam.eps.bmi.search.ranking.lucene;
 
+import org.apache.lucene.search.ScoreDoc;
+
 import es.uam.eps.bmi.search.index.Index;
 import es.uam.eps.bmi.search.ranking.SearchRankingDoc;
 import es.uam.eps.bmi.search.ranking.SearchRankingIterator;
-import org.apache.lucene.search.ScoreDoc;
 
 /**
  *

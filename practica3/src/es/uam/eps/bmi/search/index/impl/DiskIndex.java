@@ -1,8 +1,9 @@
 package es.uam.eps.bmi.search.index.impl;
 
+import java.io.IOException;
+
 import es.uam.eps.bmi.search.index.structure.Dictionary;
 import es.uam.eps.bmi.search.index.structure.impl.DiskHashDictionary;
-import java.io.IOException;
 
 /**
  *

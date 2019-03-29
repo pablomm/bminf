@@ -1,10 +1,12 @@
 package es.uam.eps.bmi.search.index.structure.lucene;
 
-import es.uam.eps.bmi.search.index.structure.Posting;
-import es.uam.eps.bmi.search.index.structure.PostingsListIterator;
 import java.io.IOException;
+
 import org.apache.lucene.index.PostingsEnum;
 import org.apache.lucene.search.DocIdSetIterator;
+
+import es.uam.eps.bmi.search.index.structure.Posting;
+import es.uam.eps.bmi.search.index.structure.PostingsListIterator;
 
 /**
  *

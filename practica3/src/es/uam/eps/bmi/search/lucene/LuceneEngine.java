@@ -1,12 +1,8 @@
 package es.uam.eps.bmi.search.lucene;
 
-import es.uam.eps.bmi.search.AbstractEngine;
-import es.uam.eps.bmi.search.index.NoIndexException;
-import es.uam.eps.bmi.search.index.lucene.LuceneIndex;
-import es.uam.eps.bmi.search.ranking.SearchRanking;
-import es.uam.eps.bmi.search.ranking.lucene.LuceneRanking;
 import java.io.IOException;
 import java.nio.file.Paths;
+
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.DirectoryReader;
@@ -15,6 +11,12 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.FSDirectory;
+
+import es.uam.eps.bmi.search.AbstractEngine;
+import es.uam.eps.bmi.search.index.NoIndexException;
+import es.uam.eps.bmi.search.index.lucene.LuceneIndex;
+import es.uam.eps.bmi.search.ranking.SearchRanking;
+import es.uam.eps.bmi.search.ranking.lucene.LuceneRanking;
 
 /**
  *

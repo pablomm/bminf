@@ -1,10 +1,11 @@
 package es.uam.eps.bmi.search.index.impl;
 
-import es.uam.eps.bmi.search.index.Config;
-import es.uam.eps.bmi.search.index.Index;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+
+import es.uam.eps.bmi.search.index.Config;
+import es.uam.eps.bmi.search.index.Index;
 
 /**
  *
