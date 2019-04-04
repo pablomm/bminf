@@ -50,8 +50,8 @@ public class FeaturesImpl<T> implements Features<T> {
 
 	@Override
 	public void setFeature(int id, T feature, double value) {
-		if (!values.containsKey(id))
-			values.put(id, new HashMap<T,Double>());
+		
+		values.putIfAbsent(id, new HashMap<T,Double>());
 		
 		// Add the feature
 		values.get(id).put(feature,value);

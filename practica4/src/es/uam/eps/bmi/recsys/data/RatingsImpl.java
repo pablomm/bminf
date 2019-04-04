@@ -47,10 +47,8 @@ public class RatingsImpl implements Ratings {
 	@Override
 	public void rate(int user, int item, Double rating) {
 		// We search for an entry of the user, if not found we create it
-		if (!ratings.containsKey(user))
-			ratings.put(user, new HashMap<Integer,Double>());
-		if (!inverseRatings.containsKey(item))
-			inverseRatings.put(item, new HashMap<Integer,Double>());
+		ratings.putIfAbsent(user, new HashMap<Integer,Double>());
+		inverseRatings.putIfAbsent(item, new HashMap<Integer,Double>());
 		
 		// Add the rating
 		ratings.get(user).put(item, rating);
