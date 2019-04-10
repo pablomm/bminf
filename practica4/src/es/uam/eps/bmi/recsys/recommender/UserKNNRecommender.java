@@ -2,46 +2,44 @@ package es.uam.eps.bmi.recsys.recommender;
 
 import java.util.HashMap;
 
-import es.uam.eps.bmi.recsys.Recommendation;
 import es.uam.eps.bmi.recsys.data.Ratings;
+import es.uam.eps.bmi.recsys.data.RatingsImpl;
 import es.uam.eps.bmi.recsys.ranking.Ranking;
 import es.uam.eps.bmi.recsys.ranking.RankingElement;
 import es.uam.eps.bmi.recsys.ranking.RankingImpl;
 import es.uam.eps.bmi.recsys.recommender.similarity.Similarity;
 
-public class UserKNNRecommender implements Recommender {
+public class UserKNNRecommender extends AbstractRecommender {
 	
 	// off-line neighborhood checking  
 	HashMap<Integer,Ranking> neighborhood=
 			new HashMap<Integer,Ranking> ();
-	
-	// Rankings of the users
-	Ratings ratings;
 	
 	// Name of the similarity used
 	String sim = null;
 
 	public UserKNNRecommender (Ratings rat, Similarity s, int k) {
 		
-		ratings=rat;
+		super(rat);
 		// Get the similarity
 		sim=s.toString();
 		
+		// The 'real' ratings of this class
+		Ratings ratings=new RatingsImpl();
+		
 		// Populate the neighborhood with each user's ranking
-		for (int user1 : ratings.getUsers()) {
+		for (int user1 : rat.getUsers()) {
 			// Rank the other users based on their similarity to the first one
 			RankingImpl ranking = new RankingImpl(k);
-			for (int user2 : ratings.getUsers())
+			for (int user2 : rat.getUsers())
 				if (user1!=user2) ranking.add(user2, s.sim(user1, user2));
 			// Add the ranking
 			neighborhood.put(user1,ranking);
+			for (int item : rat.getItems(user1))
+				ratings.rate(user1, item,score(user1, item));
 		}
-	}
-	
-	@Override
-	public Recommendation recommend(int cutoff) {		
-		// TODO Auto-generated method stub
-		return null;
+		
+		this.ratings=ratings;
 	}
 
 	@Override

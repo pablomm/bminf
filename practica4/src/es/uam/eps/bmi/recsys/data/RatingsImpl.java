@@ -19,7 +19,7 @@ public class RatingsImpl implements Ratings {
 	// Number of ratings in total
 	int nRatings=0;
 	
-	private RatingsImpl () {
+	public RatingsImpl () {
 		// Empty builder
 	}
 

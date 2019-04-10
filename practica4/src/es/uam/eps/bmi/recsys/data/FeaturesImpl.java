@@ -3,7 +3,6 @@ package es.uam.eps.bmi.recsys.data;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
 
