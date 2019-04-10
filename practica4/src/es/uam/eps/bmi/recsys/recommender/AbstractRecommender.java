@@ -21,17 +21,12 @@ public abstract class AbstractRecommender implements Recommender {
 			// We create and populate each user's corresponding ranking
 			RankingImpl ranking = new RankingImpl(cutoff);
 			for (int item : ratings.getItems(user))
-				ranking.add(item, ratings.getRating(user, item));
+				ranking.add(item, score(user, item));
 			// The ranking is added to the return
 			recommendation.add(user, ranking);
 		}
 		
 		return recommendation;
-	}
-
-	@Override
-	public double score(int user, int item) {
-		return ratings.getRating(user, item);
 	}
 
 }

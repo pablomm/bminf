@@ -3,7 +3,6 @@ package es.uam.eps.bmi.recsys.recommender;
 import java.util.HashMap;
 
 import es.uam.eps.bmi.recsys.data.Ratings;
-import es.uam.eps.bmi.recsys.data.RatingsImpl;
 import es.uam.eps.bmi.recsys.ranking.Ranking;
 import es.uam.eps.bmi.recsys.ranking.RankingElement;
 import es.uam.eps.bmi.recsys.ranking.RankingImpl;
@@ -24,9 +23,6 @@ public class UserKNNRecommender extends AbstractRecommender {
 		// Get the similarity
 		sim=s.toString();
 		
-		// The 'real' ratings of this class
-		Ratings ratings=new RatingsImpl();
-		
 		// Populate the neighborhood with each user's ranking
 		for (int user1 : rat.getUsers()) {
 			// Rank the other users based on their similarity to the first one
@@ -35,11 +31,7 @@ public class UserKNNRecommender extends AbstractRecommender {
 				if (user1!=user2) ranking.add(user2, s.sim(user1, user2));
 			// Add the ranking
 			neighborhood.put(user1,ranking);
-			for (int item : rat.getItems(user1))
-				ratings.rate(user1, item,score(user1, item));
 		}
-		
-		this.ratings=ratings;
 	}
 
 	@Override
