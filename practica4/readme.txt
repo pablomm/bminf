@@ -3,3 +3,8 @@ es.uam.eps.bmi.recsys.data.RankingImpl
 es.uam.eps.bmi.recsys.recommender.AbstractRecommender
 es.uam.eps.bmi.recsys.recommender.AverageRecommender
 es.uam.eps.bmi.recsys.recommender.UserKNNRecommender
+es.uam.eps.bmi.recsys.recommender.NormUserKNNRecommender
+es.uam.eps.bmi.recsys.recommender.similarity.CosineUserSimilarity
+es.uam.eps.bmi.recsys.recommender.similarity.CosineItemSimilarity
+es.uam.eps.bmi.recsys.recommender.similarity.CosineFeatureSimilarity
+es.uam.eps.bmi.recsys.recommender.CentroidRecommender

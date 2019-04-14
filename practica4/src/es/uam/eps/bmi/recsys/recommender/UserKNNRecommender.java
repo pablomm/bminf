@@ -16,6 +16,10 @@ public class UserKNNRecommender extends AbstractRecommender {
 	
 	// Name of the similarity used
 	String sim = null;
+	
+	protected UserKNNRecommender (Ratings rat) {
+		super(rat);
+	}
 
 	public UserKNNRecommender (Ratings rat, Similarity s, int k) {
 		

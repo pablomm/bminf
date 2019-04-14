@@ -8,12 +8,15 @@ import java.util.Set;
 
 public class FeaturesImpl<T> implements Features<T> {
 	
-	HashMap<Integer, HashMap<T,Double>> values=null;
+	HashMap<Integer, HashMap<T,Double>> values=new HashMap<Integer,HashMap<T,Double>> ();
+	
+	public FeaturesImpl() {
+		// Empty constructor
+	}
 	
 	public FeaturesImpl(String path, String delimiter, Parser<T> parser) throws FileNotFoundException {
 		
 		// Initialize the elements
-		values=new HashMap<Integer,HashMap<T,Double>> ();
 		Scanner scanner = new Scanner (new File (path));
 		
 		while (scanner.hasNextLine()) {
