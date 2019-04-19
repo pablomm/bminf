@@ -2,6 +2,7 @@ package es.uam.eps.bmi.recsys.test;
 
 import es.uam.eps.bmi.recsys.Recommendation;
 import es.uam.eps.bmi.recsys.data.Ratings;
+import es.uam.eps.bmi.recsys.recommender.NormUserKNNRecommender;
 import es.uam.eps.bmi.recsys.recommender.Recommender;
 import es.uam.eps.bmi.recsys.recommender.UserCenteredKNNRecommender;
 import es.uam.eps.bmi.recsys.data.RatingsImpl;
@@ -34,7 +35,7 @@ public class StudentTest {
 		testDataset("data/toy-ratings.dat", "\t", 1, 2);
 		System.out.println("=========================");
 		System.out.println("Testing MovieLens \"latest-small\" dataset");
-		// testDataset("data/ratings.csv", ",", 35, 1176);
+		testDataset("data/ratings.csv", ",", 35, 1176);
 	}
 
 	static <F> void toyTest(String dataset, String separator) throws FileNotFoundException {
@@ -71,6 +72,9 @@ public class StudentTest {
 		Timer.reset();
 		Similarity sim = new PearsonUserSimilarity(ratings);
 		testRecommender(new UserKNNRecommender(ratings, sim, k), n, nUsers, nItems);
+		
+		Timer.reset();
+		testRecommender(new NormUserKNNRecommender(ratings, sim, k, 2), n, nUsers, nItems);
 
 		Timer.reset();
 		testRecommender(new UserCenteredKNNRecommender(ratings, sim, k), n, nUsers, nItems); // Ahorramos un poco de
@@ -90,6 +94,11 @@ public class StudentTest {
 		Timer.reset();
 		Similarity sim = new PearsonUserSimilarity(ratings);
 		evaluateRecommender(new UserKNNRecommender(ratings, sim, k), n, metrics);
+		
+		Timer.reset();
+		evaluateRecommender(new NormUserKNNRecommender(ratings, sim, k, 2), n, metrics);
+		
+		
 		Timer.reset();
 		evaluateRecommender(new UserCenteredKNNRecommender(ratings, sim, k), n, metrics); // Ahorramos un poco de tiempo
 																							// reutilizando la
