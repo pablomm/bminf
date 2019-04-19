@@ -1,6 +1,6 @@
 
 es.uam.eps.bmi.recsys.data.FeaturesImpl // Modificado por faltas de comprobacion si elemento es null
-es.uam.eps.bmi.recsys.data.RankingImpl  // Modificado por faltas de comprobacion si elemento es null
+es.uam.eps.bmi.recsys.data.RatingsImpl  // Modificado por faltas de comprobacion si elemento es null
 es.uam.eps.bmi.recsys.RecommendationImpl
 es.uam.eps.bmi.recsys.recommender.AbstractRecommender // Modificado para no recomendar cosas ya puntuadas 
 es.uam.eps.bmi.recsys.recommender.AverageRecommender // Modificado para simplificar el codigo como se sugiere en la memoria
@@ -13,7 +13,9 @@ es.uam.eps.bmi.recsys.recommender.ItemNNRecommender // Nueva
 es.uam.eps.bmi.recsys.recommender.similarity.CosineItemSimilarity // Modificada para calcular bien los modulos y no iterar sobre todos los usuarios
 es.uam.eps.bmi.recsys.recommender.similarity.JaccardFeatureSimilarity // Nueva
 es.uam.eps.bmi.recsys.recommender.similarity.PearsonSimilarity // Nueva
-
-// Aun no funcionan
+es.uam.eps.bmi.recsys.recommender.UserCenterKNNRecommender // Nueva
 es.uam.eps.bmi.recsys.metric.Precision // Nueva
 es.uam.eps.bmi.recsys.metric.Recall // Nueva
+es.uam.eps.bmi.recsys.metric.Rsme // Nueva
+es.uam.eps.bmi.recsys.test.StudenTest // Nueva
+

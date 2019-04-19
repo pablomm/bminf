@@ -43,6 +43,7 @@ public class FeaturesImpl<T> implements Features<T> {
 			
 			String[] line = scanner.nextLine().split(delimiter);
 			
+			try {
 			// Obtenemos el id, Feature y Valor
 			int item = Integer.parseInt(line[0]);
 			T feature = parser.parse(line[1]);
@@ -53,6 +54,9 @@ public class FeaturesImpl<T> implements Features<T> {
 
 			// Incluimos la feature
 			values.get(item).put(feature,value);
+			} catch (NumberFormatException e) {
+				// Try catch para evitar cabeceras del fichero csv
+			}
 		}
 		scanner.close();
 	}

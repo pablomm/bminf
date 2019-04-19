@@ -44,7 +44,7 @@ public class Test {
         testDataset("data/toy-ratings.dat", "data/toy-item-features.dat", "\t", new IntParser(), 1, 2);
         System.out.println("=========================");
         System.out.println("Testing MovieLens \"latest-small\" dataset");
-        //testDataset("data/ratings.csv", "data/tags.csv", ",", new StringParser(), 35, 1176);
+        testDataset("data/ratings.csv", "data/tags.csv", ",", new StringParser(), 35, 1176);
     }
     
     static <F>void toyTest(String dataset, String separator, Parser<F> featureParser) throws FileNotFoundException {

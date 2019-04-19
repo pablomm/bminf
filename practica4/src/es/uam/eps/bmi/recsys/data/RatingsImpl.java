@@ -51,16 +51,22 @@ public class RatingsImpl implements Ratings {
 		// Recorremos el fichero linea a linea
 		while (scanner.hasNextLine()) {
 			
+			String l = scanner.nextLine();
 			// Separamos la linea por el delimitador
-			String[] line = scanner.nextLine().split(delimiter);
+			String[] line = l.split(delimiter);
 			
-			// Parseamos el usuario/Item/Rating
-			int user = Integer.parseInt(line[0]);
-			int item = Integer.parseInt(line[1]);
-			Double rating = Double.parseDouble(line[2]);
+			try {
+				// Parseamos el usuario/Item/Rating
+				int user = Integer.parseInt(line[0]);
+				int item = Integer.parseInt(line[1]);
+				Double rating = Double.parseDouble(line[2]);
+				// Incluimos el rating en la estructura
+				rate(user, item, rating);
+			} catch (NumberFormatException e) {
+				// Try catch para evitar cabeceras del fichero csv
+			}
 			
-			// Incluimos el rating en la estructura
-			rate(user, item, rating);
+			
 		}
 		scanner.close();
 	}

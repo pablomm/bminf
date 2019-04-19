@@ -34,7 +34,7 @@ public class Precision implements Metric {
 
 		for (int user : rec.getUsers()) {
 			int i = 0;
-
+			double prec_user = 0;
 			for (RankingElement recomendacion : rec.getRecommendation(user)) {
 
 				// Solo miramos las primeras recomendaciones
@@ -46,17 +46,23 @@ public class Precision implements Metric {
 
 				if (rating != null) {
 					if (rating >= threshold) {
-						prec += 1;
+						prec_user += 1;
 					}
 
 				}
 				// Actualizacion de la recomendiacion mirada
 				i++;
 			}
+			
+			if (i > 0) {
+				prec += prec_user / i;
+			}
+			
+			
 		}
 
 		// Devolvemos la precision media
-		return prec / (rec.getUsers().size() * at);
+		return prec / (rec.getUsers().size());
 	}
 
 	@Override
