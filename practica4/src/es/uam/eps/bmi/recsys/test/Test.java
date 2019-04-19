@@ -44,7 +44,7 @@ public class Test {
         testDataset("data/toy-ratings.dat", "data/toy-item-features.dat", "\t", new IntParser(), 1, 2);
         System.out.println("=========================");
         System.out.println("Testing MovieLens \"latest-small\" dataset");
-        testDataset("data/ratings.csv", "data/tags.csv", ",", new StringParser(), 35, 1176);
+        //testDataset("data/ratings.csv", "data/tags.csv", ",", new StringParser(), 35, 1176);
     }
     
     static <F>void toyTest(String dataset, String separator, Parser<F> featureParser) throws FileNotFoundException {
@@ -52,7 +52,7 @@ public class Test {
         Ratings test = new RatingsImpl(dataset + "-test.dat", separator);
         Features<F> features = new FeaturesImpl<F>(dataset + "-item-features.dat", separator, featureParser);
         Metric metrics[] = new Metric [] {
-            new Rmse(test),
+            //new Rmse(test),
             new Precision(test, 3, 5),
             new Recall(test, 3, 5),
         };
@@ -79,7 +79,7 @@ public class Test {
         Ratings test = folds[1];
         
         Metric metrics[] = new Metric [] {
-            new Rmse(test),
+            //new Rmse(test),
             new Precision(test, threshold, cutoff),
             new Recall(test, threshold, cutoff),
         };

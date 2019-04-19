@@ -8,32 +8,45 @@ import es.uam.eps.bmi.recsys.ranking.RankingElement;
 import es.uam.eps.bmi.recsys.ranking.RankingImpl;
 import es.uam.eps.bmi.recsys.recommender.similarity.Similarity;
 
+/**
+ * @author Miguel Laseca, Pablo Marcos
+ *
+ */
 public class UserKNNRecommender extends AbstractRecommender {
 	
-	// off-line neighborhood checking  
-	HashMap<Integer,Ranking> neighborhood=
-			new HashMap<Integer,Ranking> ();
+	/**
+	 * Mapa para incluir la vecindad, calculada off-line 
+	 */
+	HashMap<Integer,Ranking> neighborhood = new HashMap<Integer,Ranking> ();
 	
-	// Name of the similarity used
-	String sim = null;
-	
-	protected UserKNNRecommender (Ratings rat) {
-		super(rat);
-	}
+	/**
+	 * Nombre de la similitud usada 
+	 */
+	String sim;
 
+	/**
+	 * Recomendador knn basado en usuario sin normalizacion
+	 * @param rat Estructura con los ratings
+	 * @param s Similitud
+	 * @param k Numero de vecinos
+	 */
 	public UserKNNRecommender (Ratings rat, Similarity s, int k) {
 		
 		super(rat);
-		// Get the similarity
+		
+		// Nombre del tipo de similitud
 		sim=s.toString();
 		
-		// Populate the neighborhood with each user's ranking
+		// Calculamos la similitud de todos con todos.
 		for (int user1 : rat.getUsers()) {
 			// Rank the other users based on their similarity to the first one
 			RankingImpl ranking = new RankingImpl(k);
-			for (int user2 : rat.getUsers())
+			
+			for (int user2 : rat.getUsers()) {
 				if (user1!=user2) ranking.add(user2, s.sim(user1, user2));
-			// Add the ranking
+			}
+			
+			// Incluimos el ranking de vecindades del user1
 			neighborhood.put(user1,ranking);
 		}
 	}
@@ -43,26 +56,26 @@ public class UserKNNRecommender extends AbstractRecommender {
 		
 		double score=0;
 		
-		// Variable that stores the sum of all neighbors' similarities
-		double c_sum=0;
-		
-		// Iterate through the k-NN to user
+		// Iteramos sobre la vecindad
 		for (RankingElement rank : neighborhood.get(user)) {
-			// Get the similarity and the ID of the user
-			double sim=rank.getScore();
-			int user_aux=rank.getID();
 			
-			// c=1/sum(sim(u,v), forall v in kNN(u))
-			c_sum+=sim;
-			// The initial score is the sum of the products of the similarities
-			// and the rating the neighbor gave to item
-			score+=sim*ratings.getRating(user_aux, item);
+			// Obtenemos el rating del vecino
+			Double rating = ratings.getRating(rank.getID(), item);;
+			
+			if (rating != null) {
+				// score += r(u,i)*sim(u,v)
+				score += rank.getScore() * rating;
+			}
+		}
+		// No recomendamos cosas sin datos
+		if (score == 0) {
+			return Double.NEGATIVE_INFINITY;
 		}
 		
-		// r^= c * sum(rating(v,i)*sim(u,v), forall v in kNN(u))
-		return score/c_sum;
+		return score;
 	}
 
+	@Override
 	public String toString() {
 		return "user-based kNN ("+ sim +")";
 	}

@@ -5,6 +5,10 @@ import es.uam.eps.bmi.recsys.RecommendationImpl;
 import es.uam.eps.bmi.recsys.data.Ratings;
 import es.uam.eps.bmi.recsys.ranking.RankingImpl;
 
+/**
+ * @author Miguel Laseca, Pablo Marcos
+ *
+ */
 public abstract class AbstractRecommender implements Recommender {
 
 	protected Ratings ratings;
@@ -17,12 +21,23 @@ public abstract class AbstractRecommender implements Recommender {
 	public Recommendation recommend(int cutoff) {
 		RecommendationImpl recommendation = new RecommendationImpl();
 		
+		// Creamos una ranking de recomendacion por usuario
 		for (int user : ratings.getUsers()) {
-			// We create and populate each user's corresponding ranking
+			
 			RankingImpl ranking = new RankingImpl(cutoff);
-			for (int item : ratings.getItems(user))
-				ranking.add(item, score(user, item));
-			// The ranking is added to the return
+			
+			// Iteramos sobre todos los Items
+			for (int item : ratings.getItems()) {
+				
+				// Si el usuario no ha puntuado anteriormente el item lo incluimos
+				if (ratings.getRating(user, item) == null) {
+					double puntuacion = this.score(user, item);
+					if (puntuacion != Double.NEGATIVE_INFINITY)
+					ranking.add(item, puntuacion);
+				}
+			}
+			
+			// Ranking final en la recomendacion
 			recommendation.add(user, ranking);
 		}
 		

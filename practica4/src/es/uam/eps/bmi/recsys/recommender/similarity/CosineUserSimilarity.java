@@ -2,10 +2,19 @@ package es.uam.eps.bmi.recsys.recommender.similarity;
 
 import es.uam.eps.bmi.recsys.data.Ratings;
 
+/**
+ * @author Miguel Laseca y Pablo Marcos
+ *
+ */
 public class CosineUserSimilarity implements Similarity {
+
 
 	Ratings ratings;
 	
+	/**
+	 * Similitud coseno entre usuarios
+	 * @param r Estructura con ratings
+	 */
 	public CosineUserSimilarity(Ratings r) {
 		ratings=r;
 	}
@@ -13,21 +22,39 @@ public class CosineUserSimilarity implements Similarity {
 	@Override
 	public double sim(int x, int y) {
 		
-		// The total score, the similarity between the two users
+
 		double score=0;
-		// The module of both users' scores
-		double x_mod=0, y_mod=0;
+		double x_mod = 0;
+	
 		
-		for (int item : ratings.getItems()) {
-			// Score based on the scores both users do to each item they have in common
-			// If one of the users didn't score the item this adds 0 to score 
-			score+=ratings.getRating(x, item)*ratings.getRating(y, item);
-			// Increment the modules with the 2nd power of each score
-			x_mod+=Math.pow(ratings.getRating(x, item),2.);
-			y_mod+=Math.pow(ratings.getRating(y, item),2.);
+		// Iteramos sobre los elementos puntuados por el usuario x
+		for (int item : ratings.getItems(x)) {
+			
+			Double y_rating = ratings.getRating(y, item);
+			Double x_rating = ratings.getRating(x, item);
+			
+			if (y_rating != null) {
+				score+= x_rating * y_rating;
+			
+			}
+			// Vamos calculando el modulo de x
+			x_mod+= Math.pow(x_rating,2);
 		}
 		
-		return score/(Math.sqrt(x_mod)*Math.sqrt(y_mod));
+		double y_mod = 0;
+		
+		// Calculamos el modulo de y
+		for (int item : ratings.getItems(y)) {
+			y_mod+= Math.pow(ratings.getRating(y, item), 2);
+		}
+		
+		
+		return score/(Math.sqrt(x_mod * y_mod));
+	}
+	
+	@Override
+	public String toString() {
+		return "cosine";
 	}
 
 }

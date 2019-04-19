@@ -1,5 +1,8 @@
 package es.uam.eps.bmi.recsys.recommender;
 
+import java.util.HashMap;
+import java.util.Map.Entry;
+
 import es.uam.eps.bmi.recsys.data.Features;
 import es.uam.eps.bmi.recsys.data.FeaturesImpl;
 import es.uam.eps.bmi.recsys.data.Ratings;
@@ -7,51 +10,69 @@ import es.uam.eps.bmi.recsys.recommender.similarity.FeatureSimilarity;
 
 public class CentroidRecommender<F> extends AbstractRecommender {
 	
-	// Store the users 'features'
+	
+	/**
+	 * 
+	 */
 	private FeatureSimilarity<F> sim;
 
 	
-	/**
-	 * I'm still not sure about using |u| for the centroid
-	 * @param rat Ratings from which generate the recommender
-	 * @param s Calculator of similarity between users and items
-	 */
 	public CentroidRecommender (Ratings rat, FeatureSimilarity<F> s) {
 		// Initialize the recommender
 		super(rat);
+
+		// Almacenamos la similitud de Features
 		sim=s;
-		// Store the users features
-		Features<F> features=new FeaturesImpl<F> ();
-		// Extract the items features
-		Features<F> item_features=s.getFeatures();
 		
-		// Generate all users vectors of features
-		for (int user : ratings.getUsers()) {
-			// Stores |u|
-			double user_mod=0;
+		// Obtenemos todas las features por item
+		Features<F> yFeatures = s.getFeatures();
+
+		// Centroides de usuario
+		Features<F> xFeatures = new FeaturesImpl<F>();
+		
+		// Mapa con features del usuario
+		HashMap<F, Double> featMap = new HashMap<F, Double>();
+		
+		// Iteramos sobre todos los usuarios, cuyos centroides construiremos
+		for (int user : this.ratings.getUsers()) {
 			
-			for (int item : ratings.getItems(user)) {
-				double r=ratings.getRating(user, item);
-				user_mod+=Math.pow(r, 2.);
-				for (F feature : item_features.getFeatures(item)) {
-					// The total value of each feature is the sum of each items corresponding feature by the rating the user gave to the item
-					double new_value=features.getFeature(user, feature) +
-							item_features.getFeature(item,feature)*r;
-					
-					features.setFeature(user, feature, new_value);
+			
+			// Iteramos sobre todos los items que ha puntuado
+			for (int item : this.ratings.getItems(user)) {
+				// Iteramos sobre las features de cada item y sumamos puntuaciones
+				for(F f : yFeatures.getFeatures(item)) {
+					Double score = featMap.getOrDefault(f, 0.0);
+					featMap.put(f, score + yFeatures.getFeature(item, f));
 				}
 			}
 			
-			user_mod=Math.sqrt(user_mod);
-			// Divide by |u|
-			for (F feature : features.getFeatures(user))
-				features.setFeature(user, feature, features.getFeature(user, feature)/user_mod);
+			// Calculamos el modulo del centroide, aunque 
+			// con el coseno no es necesario normalizar, con 
+			// otras similitudes si
+			double mod = 0;
+			for(Double score : featMap.values()) {
+				mod += score * score;
+			}
+			mod = Math.sqrt(mod);
+			
+			// Incluimos el centroide de usuario
+			for(Entry<F, Double> entry : featMap.entrySet()) {
+				xFeatures.setFeature(user, entry.getKey(), entry.getValue() / mod);
+			}
+			
+			featMap.clear(); // Limpiamos para el siguiente usuario
 		}
-		sim.setXFeatures(features);
+		
+		sim.setXFeatures(xFeatures);
 	}
 	
 	@Override
 	public double score(int user, int item) {
 		return sim.sim(user, item);
+	}
+	
+	@Override
+	public String toString() {
+		return "centroid-based (" + sim.toString() + ")";
 	}
 }

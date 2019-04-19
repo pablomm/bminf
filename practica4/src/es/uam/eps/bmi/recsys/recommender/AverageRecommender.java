@@ -2,69 +2,67 @@ package es.uam.eps.bmi.recsys.recommender;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
-import es.uam.eps.bmi.recsys.Recommendation;
-import es.uam.eps.bmi.recsys.RecommendationImpl;
 import es.uam.eps.bmi.recsys.data.Ratings;
-import es.uam.eps.bmi.recsys.ranking.RankingImpl;
 
+/**
+ * @author Pablo Marcos, Miguel Laseca
+ *
+ */
 public class AverageRecommender extends AbstractRecommender {
-	Map<Integer,Double> ratingSum;
-	
-	public AverageRecommender(Ratings ratings,double min) {
-		super(ratings);
-        ratingSum = new HashMap<Integer,Double>();
-        for (int item : ratings.getItems()) {
-        	int size=0;
-            double sum = 0;
-            for (int u : ratings.getUsers(item)) {
-                sum += ratings.getRating(u, item);
-                size++;
-            }
-            if (size>=min) ratingSum.put(item, sum/size);
-        }
-	}
+
+	Map<Integer,Double> ratingAvg = new HashMap<Integer,Double>();
 	
 	/**
-	 * Not so sure if this is what this method is meant to do
+	 * Recomendador por media
+	 * @param ratings Estructura con los ratings
+	 * @param minRatings Minimo de ratings para recomendar un Item
 	 */
-	@Override
-	public Recommendation recommend(int cutoff) {
-		
-		RecommendationImpl recommendation = new RecommendationImpl();
-		
-		for (int user : ratings.getUsers()) {
-			// We create and populate each user's corresponding ranking
-			RankingImpl ranking = new RankingImpl(cutoff);
-			
-			for (int item : ratingSum.keySet())
-				// Get the average score of the item
-				ranking.add(item, ratingSum.get(item));
-			// The ranking is added to the return
-			recommendation.add(user, ranking);
-		}
-		
-		return recommendation;
-	}
+	public AverageRecommender(Ratings ratings, int minRatings) {
+        super(ratings);
 
+        // Iteramos sobre todos los Items
+        for (int item : ratings.getItems()) {
+            
+        	// Obtenemos los usuarios que han puntuado ese item
+            Set<Integer> users = ratings.getUsers(item);
+            int n_ratings = users.size();
+            
+            // Si hay mas que el minimo establecido incluimos la media
+            if (n_ratings >= minRatings) {
+            	double sum = 0;
+            	 for (int u : users) {
+            		 sum += ratings.getRating(u, item);
+            	 }
+            	 
+            	 ratingAvg.put(item, sum / n_ratings);
+            }
+        }
+    }
+    
+    /* (non-Javadoc)
+     * @see es.uam.eps.bmi.recsys.recommender.Recommender#score(int, int)
+     */
 	@Override
-	public double score(int user, int item) {
-		
-		// Scores the item given the score of the user and the overall average
-		double average = 0.0;
-		int size=0;
-		
-		// Calculate the average score of the item
-		for (int user_aux : ratings.getUsers()) {
-			average+=ratings.getRating(user_aux, item);
-			size++;
-		}
-		average=average/size;
-		
-		return average;
-	}
-	
-	public String toString() {
+    public double score (int user, int item) {
+    	
+        Double puntuacion =  ratingAvg.get(item);
+        // Como hemos puesto un cutoff es posible que no haya
+        // Recomendacion para algunos, devolvemos -inf
+        if (puntuacion == null) {
+        	return Double.NEGATIVE_INFINITY;
+        }
+        
+        return puntuacion;
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+	@Override
+    public String toString() {
         return "average";
     }
+
 }

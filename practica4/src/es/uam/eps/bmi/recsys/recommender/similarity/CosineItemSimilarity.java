@@ -2,6 +2,10 @@ package es.uam.eps.bmi.recsys.recommender.similarity;
 
 import es.uam.eps.bmi.recsys.data.Ratings;
 
+/**
+ * @author Pablo Marcos, Miguel Laseca
+ *
+ */
 public class CosineItemSimilarity implements Similarity {
 
 	Ratings ratings;
@@ -15,19 +19,36 @@ public class CosineItemSimilarity implements Similarity {
 		
 		// The total score, the similarity between the two users
 		double score=0;
+		
 		// The module of both users' scores
 		double x_mod=0, y_mod=0;
 		
-		for (int user : ratings.getUsers()) {
-			// Score based on the scores both users do to each item they have in common
-			// If the user didn't score X or Y this adds 0 to score
-			score+=ratings.getRating(user, x)*ratings.getRating(user, y);
-			// Increment the modules with the 2nd power of each score
-			x_mod+=Math.pow(ratings.getRating(user, x),2.);
-			y_mod+=Math.pow(ratings.getRating(user, y),2.);
+		// Score cruzada y modulo de x
+		for(int user : ratings.getUsers(x)) {
+			
+			Double x_rating = ratings.getRating(user, x);
+			Double y_rating = ratings.getRating(user, y);
+			
+			if (y_rating != null)
+				score+= x_rating * y_rating;
+
+			x_mod += x_rating * x_rating;
+			
 		}
 		
-		return score/(Math.sqrt(x_mod)*Math.sqrt(y_mod));
+		// Modulo de y
+		for (int user : ratings.getUsers(y)) {
+	
+			Double y_rating = ratings.getRating(user, y);
+			y_mod += y_rating*y_rating;
+		}
+		
+		return score/(Math.sqrt(x_mod * y_mod));
+	}
+	
+	@Override
+	public String toString() {
+		return "cosine";
 	}
 
 }
