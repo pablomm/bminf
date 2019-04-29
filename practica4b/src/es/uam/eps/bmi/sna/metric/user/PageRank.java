@@ -53,16 +53,21 @@ public class PageRank<U extends Comparable<U>> implements LocalMetric<U, U> {
 			
 			// Juega el valor de P en el algoritmo
 			HashMap<U, Double> values  = new HashMap<U, Double>();
+			// Inicializamos todo a 1/N
 			double init = 1./nUsers;
 			for (U user : network.getUsers()) {
 				values.put(user, init);
+			}
 			
 			
 			// P'
 			HashMap<U, Double> aux_values  = new HashMap<U, Double>();
 			
-			// Iteracion principal
+			
+			// Inicializacion de la iteracion principal
 			double rn = r / nUsers;
+			
+			// Iteracion principal
 			for(int iter=0; iter<iterations; iter++) {
 				
 				//P'[i]=r/N
@@ -76,9 +81,14 @@ public class PageRank<U extends Comparable<U>> implements LocalMetric<U, U> {
 					
 					double weight=0;
 					
+					Set<U> contacts = network.getContacts(u);
+					
+					int out = contacts.size();
+					
+					
 					// Peso que le corresponde a cada enlace saliente
-					if(network.getContacts(u).size() != 0) {
-						weight = values.get(u) * (1 - r) / network.getContacts(u).size();
+					if(out != 0) {
+						weight = values.get(u) * (1 - r) / out;
 					}
 					
 					// Repartimos peso entre los enlaces saliente
@@ -101,7 +111,7 @@ public class PageRank<U extends Comparable<U>> implements LocalMetric<U, U> {
 					aux_values.put(v, sink + aux_values.get(v));
 				}	
 			}
-		}
+		
 			return values;
 
 	}
