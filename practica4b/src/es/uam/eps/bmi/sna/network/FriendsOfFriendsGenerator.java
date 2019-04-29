@@ -2,6 +2,7 @@ package es.uam.eps.bmi.sna.network;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.Set;
 
 import es.uam.eps.bmi.sna.structure.UndirectedSocialNetwork;
 import es.uam.eps.bmi.sna.structure.UndirectedSocialNetworkImpl;
@@ -62,7 +63,16 @@ public class FriendsOfFriendsGenerator extends NetworkGenerator<Integer>{
 		int[] amigos_comun = new int[n + 1];
 		Arrays.fill(amigos_comun, 0);
 		
-		for (Integer v : network.getContacts(u)) {
+		Set<Integer> conts = network.getContacts(u);
+		
+		if (conts == null) {
+			Arrays.fill(amigos_comun, 1);
+			amigos_comun[u] = 0;
+			amigos_comun[n] = n-1;
+			return amigos_comun;
+		}
+		
+		for (Integer v : conts) {
 			for(Integer w: network.getContacts(v)) {
 				amigos_comun[w]++;
 			}
@@ -81,12 +91,13 @@ public class FriendsOfFriendsGenerator extends NetworkGenerator<Integer>{
 		}
 		
 		if (cum == 0) {
-			cum = c;
+			cum = c - 1;
 			for(int i=0; i < n; i++) {
 				if (!network.connected(u, i) ) {
 					amigos_comun[i] = 1;
 				}
 			}
+			amigos_comun[u] = 0;
 		}
 		
 		// Ponemos en el ultimo la suma total
