@@ -3,9 +3,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import kde
 
+file = "friends-stats.txt"
 
 # create data
-a = np.loadtxt("barabasi-stats.txt")
+a = np.loadtxt(file)
 x = a[:,0]
 y = a[:,1]
 maximo = np.max(a)
@@ -22,5 +23,22 @@ plt.title("Densidad de X~(grado, grado medio de vecinos)")
 plt.xlabel("Grado")
 plt.ylabel("Grado medio de vecinos")
 
+plt.style.use("seaborn")
+
+plt.figure()
+plt.hist(a[:,0])
+plt.title("Histograma de grado")
+plt.xlabel("Grado")
+plt.ylabel("Frecuencia")
+
+plt.figure()
+plt.plot(np.sort(a[:,0]), np.arange(len(a)))
+plt.title("Nodos ordenados por grado")
+plt.xlabel("Grado")
+plt.ylabel("Número de nodo")
+
+
+print((a[:,0]>a[:,1]).sum(), "de", len(a),"tiene mas amigos que la "
+      "media de sus amigos")
 
 plt.show()

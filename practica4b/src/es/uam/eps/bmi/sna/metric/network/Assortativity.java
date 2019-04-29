@@ -34,7 +34,14 @@ public class Assortativity<U extends Comparable<U>> implements GlobalMetric<U> {
 		// sum(g(u)**2)**2
 		cuadrados *= cuadrados;
 		int m = network.nEdges();
-		return (4 * m * termino_cruzado - cuadrados) / (2 * m * cubos - cuadrados);
+		
+		// En el caso de un grafo completamente conectado es 0
+		double den = (2 * m * cubos - cuadrados);
+		if (den == 0) {
+			return 1;
+		}
+		
+		return (4 * m * termino_cruzado - cuadrados) / den;
 	}
 	
 	@Override

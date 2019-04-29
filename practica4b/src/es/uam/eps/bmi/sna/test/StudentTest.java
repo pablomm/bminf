@@ -21,13 +21,14 @@ import java.io.FileNotFoundException;
  */
 public class StudentTest {
     public static void main (String a[]) throws FileNotFoundException {
-        testNetwork("graph/small1.csv", ",", new IntParser(), 5, 6, 4);
-        testNetwork("graph/small2.csv", ",", new IntParser(), 5, 3, 5);
-        testNetwork("graph/small3.csv", ",", new StringParser(), 5, "a", "b");
-        //testNetwork("graph/facebook_combined.txt", " ", new IntParser(), 5, 9, 3);
-        //testNetwork("graph/twitter.csv", ",", new StringParser(), 5, "el_pais", "ElviraLindo");
+        //testNetwork("graph/small1.csv", ",", new IntParser(), 5, 6, 4);
+        //testNetwork("graph/small2.csv", ",", new IntParser(), 5, 3, 5);
+        //testNetwork("graph/small3.csv", ",", new StringParser(), 5, "a", "b");
+        testNetwork("graph/facebook_combined.txt", " ", new IntParser(), 5, 9, 3);
+        testNetwork("graph/twitter.csv", ",", new StringParser(), 5, "el_pais", "ElviraLindo");
         //testNetwork("graph/barabasi.csv", ",", new IntParser(), 5, 1, 2);
         //testNetwork("graph/erdos.csv", ",", new IntParser(), 5, 1, 2);
+        //testNetwork("graph/friends.csv", ",", new IntParser(), 5, 1, 2);
     }
     
     static <U extends Comparable<U>>void testNetwork(String graphFile, String separator, Parser<U> parser, int topK, U u, U v) throws FileNotFoundException {
@@ -41,8 +42,8 @@ public class StudentTest {
         System.out.println("-------------------------");
         testMetric(new PageRank<U>(0.2, 30, topK), network, u);
 
-        
-        testMetric(new AvgUserMetric<U>(new PageRank<U>(0.2, 30, topK)), network);
+        // No tiene sentido hacer el pageRank medio, siempre dara 1/N de nodos
+        //testMetric(new AvgUserMetric<U>(new PageRank<U>(0.2, 30, topK)), network);
        
     }
     

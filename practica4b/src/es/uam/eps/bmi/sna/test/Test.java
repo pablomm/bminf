@@ -31,8 +31,10 @@ public class Test {
         //testNetwork("graph/small3.csv", ",", new StringParser(), 5, "a", "b");
         //testNetwork("graph/facebook_combined.txt", " ", new IntParser(), 5, 9, 3);
         //testNetwork("graph/twitter.csv", ",", new StringParser(), 5, "el_pais", "ElviraLindo");
-        testNetwork("graph/barabasi.csv", ",", new IntParser(), 5, 1, 2);
-        testNetwork("graph/erdos.csv", ",", new IntParser(), 5, 1, 2);
+        //testNetwork("graph/barabasi.csv", ",", new IntParser(), 5, 1, 2);
+        //testNetwork("graph/erdos.csv", ",", new IntParser(), 5, 1, 2);
+        //testNetwork("graph/friends.csv", ",", new IntParser(), 5, 1, 2);
+    	testNetwork("graph/full.csv", ",", new IntParser(), 5, 1, 2);
     }
     
     static <U extends Comparable<U>>void testNetwork(String graphFile, String separator, Parser<U> parser, int topK, U u, U v) throws FileNotFoundException {
